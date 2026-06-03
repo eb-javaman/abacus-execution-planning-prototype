@@ -1228,8 +1228,10 @@ function closeDrawer() {
   const rowId = state._activeRowId;
   const snap = state._drawerSnapshot;
   if (rowId && snap) {
+    // Restore CUR selection
     if (snap.cur == null) delete state.curByRow[rowId];
     else state.curByRow[rowId] = snap.cur;
+    // Restore overrides
     if (snap.overrides == null) delete state.resourceOverrides[rowId];
     else state.resourceOverrides[rowId] = {...snap.overrides};
   }
@@ -1257,7 +1259,10 @@ function onCurSelect() {
     return;
   }
   if (rowId) {
-    if (state.curByRow[rowId] !== k) delete state.resourceOverrides[rowId];
+    // Switching CUR clears stale overrides — composition may differ
+    if (state.curByRow[rowId] !== k) {
+      delete state.resourceOverrides[rowId];
+    }
     if (k) state.curByRow[rowId] = k;
     else delete state.curByRow[rowId];
   }
@@ -1293,46 +1298,6 @@ function renderCurDetails(k) {
     </tr>
   `;
   }).join('');
-}
-
-function closeDrawer() {
-  $('curDrawer').classList.remove('show');
-  $('curDrawerScrim').classList.remove('show');
-}
-
-function onCurSelect() {
-  const k = $('cur_select').value;
-  if (k === 'K-NEW') {
-    toast('Create new CUR — opens Knowledge Library (prototype)');
-    $('cur_select').value = '';
-    renderCurDetails('');
-    return;
-  }
-  renderCurDetails(k);
-}
-
-function renderCurDetails(k) {
-  const entry = CUR_CATALOG[k];
-  if (!entry) {
-    $('cur_summary').style.display = 'none';
-    $('cur_resources_tbl').style.display = 'none';
-    $('cur_resources_empty').style.display = 'block';
-    return;
-  }
-  $('cur_summary').style.display = 'flex';
-  $('cur_value').textContent = '$' + entry.cur.toFixed(2);
-  $('cur_daily').textContent = entry.daily + ' m³/day';
-  $('cur_soil').textContent = entry.soil;
-  $('cur_resources_tbl').style.display = 'table';
-  $('cur_resources_empty').style.display = 'none';
-  $('cur_resources_body').innerHTML = entry.resources.map(x => `
-    <tr>
-      <td>${x.res}</td>
-      <td>${x.type}</td>
-      <td class="num">${x.units}</td>
-      <td class="num"><input class="cell-input" type="number" step="0.01" value="${x.rate}" style="width:80px; border:1px solid var(--neutral-200); background:var(--white)" /> <span style="color:var(--neutral-500); font-size:11px">/h</span></td>
-    </tr>
-  `).join('');
 }
 
 function openImportConfirm() {
@@ -1407,7 +1372,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!state.resourceOverrides[rowId]) state.resourceOverrides[rowId] = {};
     state.resourceOverrides[rowId][resName] = Number.isFinite(newRate) ? newRate : 0;
   });
-  
   $('btnExport').addEventListener('click', () => toast('Export started (prototype)'));
   $('btnAcquire').addEventListener('click', () => {
     if (!state.imported || state.acquired) return;
