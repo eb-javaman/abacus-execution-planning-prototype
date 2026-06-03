@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1440, initial-scale=1" />
+<title>Abacus — Execution Planning (Prototype)</title>
+<style>
+  /* ---------- Color tokens ---------- */
+  :root {
+    --indigo-50:#E5E4FB; --indigo-100:#C3C0F6; --indigo-200:#9791F1;
+    --indigo-300:#736CED; --indigo-400:#5148EA; --indigo-500:#2F24E6;
+    --indigo-600:#1D14C8; --indigo-700:#140A94; --indigo-800:#0D0765;
+    --indigo-900:#07043C;
+    --white:#FFFFFF; --black:#000000;
+    --neutral-50:#F4F5F5; --neutral-100:#ECEDEE; --neutral-200:#D6D7DB;
+    --neutral-300:#B5B8BF; --neutral-400:#A0A3AC; --neutral-500:#8C909B;
+    --neutral-600:#6B6F7B; --neutral-700:#51545D; --neutral-800:#2F3137;
+    --neutral-900:#131416;
+    --red-50:#FCEDED; --red-100:#F7CCCC; --red-500:#D50000; --red-600:#AA0000;
+    --green-50:#EAFBEB; --green-100:#D0F6D3; --green-500:#28D435; --green-700:#167E1E;
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin:0; padding:0; height:100%;
+    background:var(--neutral-50);
+    color:var(--neutral-900);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size:13px; line-height:1.4;
+  }
+
+  /* ---------- Top header ---------- */
+  .topbar {
+    height:44px; background:var(--neutral-900); color:var(--white);
+    display:flex; align-items:center; padding:0 16px; gap:16px;
+    font-size:12px;
+  }
+  .topbar .brand { font-weight:700; letter-spacing:.3px; }
+  .topbar .right { margin-left:auto; display:flex; gap:16px; align-items:center; color:var(--neutral-300); }
+
+  /* ---------- Page header ---------- */
+  .page-header {
+    background:var(--white); border-bottom:1px solid var(--neutral-200);
+    padding:14px 24px 12px;
+  }
+  .breadcrumb { font-size:12px; color:var(--neutral-600); display:flex; align-items:center; gap:6px; }
+  .breadcrumb a { color:var(--neutral-600); text-decoration:none; }
+  .breadcrumb a:hover { color:var(--indigo-500); }
+  .breadcrumb .sep { color:var(--neutral-400); }
+  .breadcrumb .plan-pill {
+    margin-left:8px; padding:4px 8px; border:1px solid var(--indigo-200);
+    background:var(--indigo-50); color:var(--indigo-700); border-radius:12px;
+    font-weight:600; cursor:pointer;
+  }
+  .breadcrumb .plan-pill:hover { background:var(--indigo-100); }
+
+  .page-title-row {
+    display:flex; align-items:flex-end; justify-content:space-between; margin-top:6px;
+  }
+  .page-title { font-size:20px; font-weight:700; color:var(--neutral-900); }
+  .timestamp { font-size:11px; color:var(--neutral-500); margin-top:2px; }
+
+  .meta-row { display:flex; align-items:center; gap:8px; padding:2px 0 8px; flex-wrap:wrap; }
+  .meta-last-edited {
+    display:inline-flex; align-items:center; gap:4px;
+    font-size:12px; color:var(--neutral-500); padding-right:4px;
+  }
+  .meta-last-edited .ic { width:14px; height:14px; }
+  .meta-pill {
+    display:inline-flex; align-items:center; gap:8px;
+    padding:4px 10px; background:var(--neutral-100); border:1px solid var(--neutral-200);
+    border-radius:4px; font-size:12px; color:var(--neutral-700);
+  }
+  .meta-pill-label { color:var(--neutral-600); }
+  .meta-pill strong { color:var(--neutral-900); font-weight:700; }
+  .header-actions { display:flex; gap:8px; align-items:center; margin-left:auto; }
+
+  /* ---------- Tabs ---------- */
+  .tabs-row {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-top:12px; padding-right:0;
+  }
+  .tabs { display:flex; gap:0; }
+  .tab {
+    padding:10px 16px; font-size:13px; color:var(--neutral-600);
+    cursor:pointer; border-bottom:2px solid transparent;
+    font-weight:500;
+  }
+  .tab:hover { color:var(--neutral-900); }
+  .tab.active {
+    color:var(--indigo-600); border-bottom-color:var(--indigo-500); font-weight:600;
+  }
+  .tabs-right { display:flex; align-items:center; gap:8px; padding-bottom:6px; }
+  .search-wrap { position:relative; }
+  .search-wrap .search-icon {
+    position:absolute; right:10px; top:50%; transform:translateY(-50%);
+    width:14px; height:14px; color:var(--neutral-500); pointer-events:none;
+  }
+  .search-wrap .search-input { padding-right:28px; }
+
+  /* ---------- Toolbar ---------- */
+  .toolbar {
+    background:var(--white); padding:12px 24px; border-bottom:1px solid var(--neutral-200);
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  }
+  .toolbar .total {
+    font-size:12px; color:var(--neutral-600); padding-right:12px; border-right:1px solid var(--neutral-200);
+  }
+  .toolbar .total strong { color:var(--neutral-900); font-size:14px; margin-left:4px; }
+  .toolbar .spacer { flex:1; }
+  .search-input {
+    height:32px; padding:0 10px; border:1px solid var(--neutral-200); border-radius:6px;
+    font-size:12px; width:200px; outline:none; background:var(--white);
+  }
+  .search-input:focus { border-color:var(--indigo-400); }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    height:32px; padding:0 12px; border-radius:6px; font-size:12px; font-weight:600;
+    border:1px solid transparent; cursor:pointer; display:inline-flex; align-items:center; gap:6px;
+    background:var(--white); color:var(--neutral-800); border-color:var(--neutral-200);
+    transition:all .12s ease;
+  }
+  .btn:hover:not(:disabled) { background:var(--neutral-50); border-color:var(--neutral-300); }
+  .btn.primary {
+    background:var(--indigo-500); color:var(--white); border-color:var(--indigo-500);
+  }
+  .btn.primary:hover:not(:disabled) { background:var(--indigo-600); border-color:var(--indigo-600); }
+  .btn.danger-ghost { color:var(--red-600); }
+  .btn.ghost { background:transparent; border-color:transparent; color:var(--neutral-700); }
+  .btn.ghost:hover:not(:disabled) { background:var(--neutral-100); }
+  .btn:disabled { opacity:.45; cursor:not-allowed; }
+  .btn .ic { width:14px; height:14px; display:inline-block; }
+  .btn-sm { height:26px; padding:0 8px; font-size:11px; }
+
+  /* ---------- Main area ---------- */
+  main { padding:0 12px 80px; }
+
+  /* ---------- Empty state ---------- */
+  .empty {
+    background:var(--white); border:1px dashed var(--neutral-300); border-radius:8px;
+    padding:48px 24px; margin-top:24px; text-align:center;
+  }
+  .empty h3 { margin:0 0 6px; font-size:16px; color:var(--neutral-800); }
+  .empty p { margin:0 0 16px; color:var(--neutral-600); font-size:13px; }
+
+  /* ---------- Table ---------- */
+  .table-wrap {
+    background:var(--white); border:1px solid var(--neutral-200); border-radius:8px;
+    margin-top:16px; overflow-x:auto; overflow-y:visible;
+  }
+  table.ep {
+    min-width:100%; border-collapse:collapse; font-size:12px;
+  }
+  table.ep thead th {
+    background:var(--neutral-50); color:var(--neutral-700); font-weight:600;
+    text-align:left; padding:10px 10px; border-bottom:1px solid var(--neutral-200);
+    border-right:1px solid var(--neutral-200);
+    white-space:nowrap; font-size:11px; text-transform:uppercase; letter-spacing:.4px;
+  }
+  table.ep thead th:last-child { border-right:none; }
+  table.ep tbody td {
+    padding:4px 10px; border-bottom:1px solid var(--neutral-100);
+    border-right:1px solid var(--neutral-100);
+    vertical-align:middle; text-align:left;
+    color:var(--neutral-800); white-space:nowrap;
+  }
+  /* Allow Memo cell to wrap (otherwise long notes force the table extremely wide) */
+  table.ep tbody td.col-memo { white-space:normal; min-width:200px; max-width:300px; }
+  /* Give inline inputs a reasonable working width so cells don't collapse */
+  table.ep .cell-input { min-width:90px; }
+  table.ep .col-memo .cell-input { min-width:180px; }
+  table.ep tbody td:last-child { border-right:none; }
+  /* Zebra striping for alternating data rows */
+  table.ep tbody tr.row-alt > td { background:var(--neutral-50); }
+  /* Active state backgrounds — keep these AFTER zebra so they override */
+  table.ep tbody tr:hover > td { background:var(--neutral-50); }
+  table.ep tbody tr.expanded > td { background:var(--indigo-50); }
+  table.ep td.num { text-align:left; font-variant-numeric:tabular-nums; }
+  table.ep td.locked { color:var(--neutral-500); }
+  .cell-input {
+    width:100%; border:1px solid transparent; border-radius:4px;
+    padding:4px 6px; font-size:12px; background:transparent; outline:none;
+    font-family:inherit; color:var(--neutral-900);
+  }
+  .cell-input:hover { border-color:var(--neutral-200); background:var(--white); }
+  .cell-input:focus { border-color:var(--indigo-400); background:var(--white); box-shadow:0 0 0 2px var(--indigo-50); }
+  .cell-input::placeholder { color:var(--neutral-400); }
+  .cell-input.readonly { background:var(--neutral-50); color:var(--neutral-500); }
+  select.cell-input { appearance:auto; padding-right:18px; }
+
+  /* Hide the native datalist dropdown chevron (Chromium / Edge / Safari).
+     Autocomplete still triggers on typing. */
+  .cell-input::-webkit-calendar-picker-indicator { display:none !important; }
+  .cell-input::-webkit-list-button { display:none !important; }
+  .req { color:var(--red-500); margin-left:2px; }
+
+  .expand-btn {
+    width:20px; height:20px; border-radius:4px; border:1px solid var(--neutral-200);
+    background:var(--white); cursor:pointer; display:inline-flex; align-items:center; justify-content:center;
+    color:var(--neutral-600); padding:0; transition:transform .15s ease;
+  }
+  .expand-btn:hover { background:var(--neutral-50); color:var(--neutral-900); }
+  .expand-btn svg { transition:transform .15s ease; }
+  .expand-btn.open { background:var(--indigo-200); color:var(--indigo-50); border-color:var(--indigo-200); }
+  .expand-btn.open svg { transform:rotate(180deg); }
+
+  /* ---------- Nested SC tasks ---------- */
+  .nested {
+    background:var(--neutral-50); padding:16px 16px 18px; border-top:1px solid var(--neutral-200);
+  }
+  .nested .title { font-size:13px; font-weight:700; color:var(--neutral-900); }
+  .nested .subtitle { font-size:11px; color:var(--neutral-600); margin-top:2px; margin-bottom:10px; }
+  .chips { display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
+  .chip {
+    font-size:11px; padding:3px 8px; background:var(--white); border:1px solid var(--neutral-200);
+    border-radius:12px; color:var(--neutral-700);
+  }
+  .chip strong { color:var(--neutral-900); margin-left:4px; }
+  table.sc { width:100%; border-collapse:collapse; background:var(--white); border:1px solid var(--neutral-200); border-radius:6px; overflow:hidden; }
+  table.sc thead th {
+    background:var(--neutral-100); color:var(--neutral-700); font-weight:600;
+    text-align:left; padding:8px 10px; border-bottom:1px solid var(--neutral-200); font-size:11px;
+  }
+  table.sc tbody td { padding:8px 10px; border-bottom:1px solid var(--neutral-100); font-size:12px; }
+  table.sc tbody tr:last-child td { border-bottom:none; }
+  table.sc td.num { text-align:right; font-variant-numeric:tabular-nums; }
+
+  .empty-nested {
+    background:var(--white); border:1px dashed var(--neutral-300); padding:16px; border-radius:6px;
+    color:var(--neutral-600); font-size:12px; text-align:center;
+  }
+
+  /* ---------- Modal ---------- */
+  .scrim {
+    position:fixed; inset:0; background:rgba(19,20,22,.45); display:none;
+    align-items:center; justify-content:center; z-index:100;
+  }
+  .scrim.show { display:flex; }
+  .modal {
+    background:var(--white); border-radius:10px; width:480px; max-width:92vw;
+    box-shadow:0 20px 60px rgba(0,0,0,.25); overflow:hidden;
+  }
+  .modal.lg { width:560px; }
+  .modal-header {
+    padding:16px 20px; border-bottom:1px solid var(--neutral-200);
+    font-weight:700; font-size:15px; color:var(--neutral-900);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .modal-body { padding:18px 20px; font-size:13px; color:var(--neutral-700); }
+  .modal-footer {
+    padding:12px 20px; border-top:1px solid var(--neutral-200);
+    display:flex; justify-content:flex-end; gap:8px; background:var(--neutral-50);
+  }
+  .field { margin-bottom:14px; }
+  .field label {
+    display:block; font-size:11px; font-weight:600; color:var(--neutral-700);
+    text-transform:uppercase; letter-spacing:.4px; margin-bottom:4px;
+  }
+  .field input, .field select {
+    width:100%; height:34px; padding:0 10px; border:1px solid var(--neutral-200);
+    border-radius:6px; font-size:13px; background:var(--white); outline:none;
+    font-family:inherit;
+  }
+  .field input:focus, .field select:focus { border-color:var(--indigo-400); }
+  .field .hint { font-size:11px; color:var(--neutral-500); margin-top:4px; }
+  .field .value-row {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:8px 10px; background:var(--neutral-50); border-radius:6px;
+    font-size:12px; color:var(--neutral-800);
+  }
+  .close-x {
+    background:transparent; border:none; cursor:pointer; color:var(--neutral-500);
+    font-size:18px; line-height:1; padding:4px;
+  }
+  .close-x:hover { color:var(--neutral-800); }
+
+  /* ---------- Toast ---------- */
+  .toast {
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+    background:var(--neutral-900); color:var(--white); padding:10px 16px;
+    border-radius:6px; font-size:12px; z-index:200; opacity:0; pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease;
+    box-shadow:0 6px 20px rgba(0,0,0,.25);
+  }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(-4px); }
+  .toast.success { background:var(--green-700); }
+
+  /* ---------- Simulation Sync group ---------- */
+  .sim-sync {
+    display:flex; flex-direction:row; align-items:center; gap:10px;
+    padding:0; border:none; background:transparent;
+  }
+  .sim-sync .sim-btn {
+    background:transparent; color:var(--indigo-500);
+    border:1.5px solid var(--indigo-500);
+    border-radius:8px; height:34px; padding:0 18px;
+    font-weight:600; font-size:13px;
+  }
+  .sim-sync .sim-btn:hover:not(:disabled) { background:var(--indigo-50); color:var(--indigo-600); border-color:var(--indigo-600); }
+  .sim-sync .sim-btn:disabled { border-color:var(--neutral-300); color:var(--neutral-400); background:transparent; }
+  .sim-sync-arrow { width:22px; height:14px; color:var(--neutral-700); flex-shrink:0; }
+
+  /* Notification badge dot + tooltip label */
+  .sim-sync .sim-btn { position:relative; }
+  .sim-sync .sim-btn.has-badge::after {
+    content:''; position:absolute; top:-3px; right:-3px;
+    width:9px; height:9px; border-radius:50%; background:var(--red-500);
+    border:1.5px solid var(--white); box-shadow:0 0 0 1px var(--red-500);
+  }
+  .sim-sync .sim-btn.has-badge::before {
+    content: attr(data-badge);
+    position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
+    background:var(--neutral-900); color:var(--white); font-size:10px; font-weight:600;
+    padding:3px 8px; border-radius:4px; white-space:nowrap; pointer-events:none;
+    opacity:0; transition:opacity .15s ease;
+  }
+  .sim-sync .sim-btn.has-badge:hover::before { opacity:1; }
+
+  /* ---------- Export / icon-text buttons ---------- */
+  .btn.ghost-icon {
+    background:transparent; border-color:transparent; color:var(--neutral-700);
+    padding:0 8px;
+  }
+  .btn.ghost-icon:hover:not(:disabled) { background:var(--neutral-100); color:var(--neutral-900); }
+  .btn.ghost-icon .ic { width:16px; height:16px; }
+
+  .btn.export-btn {
+    background:transparent; border-color:transparent; color:var(--indigo-500);
+    padding:0 8px; font-weight:600;
+  }
+  .btn.export-btn:hover:not(:disabled) { background:var(--indigo-50); color:var(--indigo-600); }
+  .btn.export-btn:disabled { color:var(--neutral-400); background:transparent; }
+  .btn.export-btn .ic { width:16px; height:16px; }
+
+  /* ---------- Right-side drawer (Resources) ---------- */
+  .drawer-scrim {
+    position:fixed; inset:0; background:rgba(19,20,22,.35); z-index:90;
+    opacity:0; pointer-events:none; transition:opacity .18s ease;
+  }
+  .drawer-scrim.show { opacity:1; pointer-events:auto; }
+  .drawer {
+    position:fixed; top:0; right:0; bottom:0; width:520px; max-width:96vw;
+    background:var(--white); border-left:1px solid var(--neutral-200);
+    box-shadow:-12px 0 32px rgba(0,0,0,.12); transform:translateX(100%);
+    transition:transform .22s ease; z-index:95; display:flex; flex-direction:column;
+  }
+  .drawer.show { transform:translateX(0); }
+  .drawer-header {
+    padding:14px 20px; border-bottom:1px solid var(--neutral-200);
+    display:flex; align-items:flex-start; justify-content:space-between;
+  }
+  .drawer-title { font-size:14px; font-weight:700; color:var(--neutral-900); }
+  .drawer-subtitle { font-size:11px; color:var(--neutral-500); margin-top:2px; }
+  .drawer-body { padding:18px 20px; overflow-y:auto; flex:1; font-size:13px; color:var(--neutral-800); }
+  .drawer-footer {
+    padding:12px 20px; border-top:1px solid var(--neutral-200);
+    display:flex; justify-content:flex-end; gap:8px; background:var(--neutral-50);
+  }
+  .cur-summary { display:flex; gap:6px; flex-wrap:wrap; margin:6px 0 14px; }
+  .section-title {
+    font-size:11px; font-weight:700; color:var(--neutral-700);
+    text-transform:uppercase; letter-spacing:.4px; margin:14px 0 6px;
+  }
+  .drawer-note {
+    margin-top:14px; padding:10px 12px; background:var(--indigo-50); border:1px solid var(--indigo-100);
+    border-radius:6px; font-size:11px; color:var(--neutral-700); line-height:1.5;
+  }
+  .drawer-note strong { color:var(--indigo-700); }
+
+  /* ---------- Sticky table footer ---------- */
+  .table-footer {
+    position:fixed; bottom:0; left:0; right:0;
+    background:var(--white); border-top:1px solid var(--neutral-200);
+    padding:10px 24px; display:flex; justify-content:space-between; align-items:center;
+    box-shadow:0 -4px 12px rgba(0,0,0,.04); z-index:50; gap:12px;
+  }
+  .footer-left, .footer-right { display:flex; gap:8px; align-items:center; }
+  .footer-hint { font-size:11px; color:var(--neutral-500); margin-left:4px; }
+  main { padding-bottom:90px; }
+
+  /* Selected row style */
+  table.ep tbody tr.selected > td { background:var(--indigo-50); }
+  table.ep tbody tr.selected.expanded > td { background:var(--indigo-100); }
+
+  /* Area / Block columns are always visible — empty pre-import, filled post-import */
+
+  /* Optional columns — hidden unless body has the matching show-* class */
+  body:not(.show-wbs)   .col-wbs   { display:none; }
+  body:not(.show-acct)  .col-acct  { display:none; }
+  body:not(.show-sccat) .col-sccat { display:none; }
+  body:not(.show-cdays) .col-cdays { display:none; }
+  body:not(.show-dout)  .col-dout  { display:none; }
+  body:not(.show-start) .col-start { display:none; }
+  body:not(.show-end)   .col-end   { display:none; }
+  body:not(.show-memo)  .col-memo  { display:none; }
+
+  /* ---------- Misc ---------- */
+  .divider-v { width:1px; background:var(--neutral-200); height:24px; }
+  .menu-wrap { position:relative; }
+  .menu {
+    position:absolute; top:36px; right:0; background:var(--white);
+    border:1px solid var(--neutral-200); border-radius:8px;
+    box-shadow:0 8px 24px rgba(0,0,0,.08); padding:4px; min-width:200px;
+    display:none; z-index:30;
+  }
+  .menu.show { display:block; }
+  .menu-item {
+    padding:8px 10px; font-size:12px; color:var(--neutral-800); border-radius:4px; cursor:pointer;
+    display:flex; align-items:center; gap:8px;
+  }
+  .menu-item:hover { background:var(--neutral-50); }
+  .menu-divider { height:1px; background:var(--neutral-100); margin:4px 0; }
+  .caret { color:var(--neutral-500); margin-left:4px; }
+
+  /* Checkbox grid in display settings */
+  .checks { display:grid; grid-template-columns:1fr 1fr; gap:8px 12px; }
+  .checks label { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--neutral-800); cursor:pointer; }
+  .checks input[type=checkbox] { accent-color:var(--indigo-500); }
+</style>
+</head>
+<body>
+
+<!-- ========== TOP BAR ========== -->
+<div class="topbar">
+  <span class="brand">ABACUS</span>
+  <span style="opacity:.6">Construction Planning &amp; Execution</span>
+  <div class="right">
+    <span>Site: Tochigi-Highway-Site-A</span>
+    <span>Thessalonia</span>
+  </div>
+</div>
+
+<!-- ========== PAGE HEADER ========== -->
+<div class="page-header">
+  <div class="breadcrumb">
+    <a href="#">Site List</a>
+    <span class="sep">›</span>
+    <a href="#">Tochigi-Highway-Site-A</a>
+    <span class="sep">›</span>
+    <span id="planPill" class="plan-pill" title="Open Plan Settings">— No plan selected —</span>
+    <div class="header-actions">
+      <button id="btnAcquire" class="btn" disabled title="Available after a Simulation Plan is imported">
+        Acquire Performance Data
+      </button>
+    </div>
+  </div>
+
+  <div class="page-title-row">
+    <div class="meta-row">
+      <div id="lastEdited" class="meta-last-edited">
+        <svg class="ic" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <span>Last Edited: 00:00 mm/dd/yyyy</span>
+      </div>
+      <div class="meta-pill">
+        <span class="meta-pill-label">Announcement Date</span>
+        <strong>mm/dd/yyyy</strong>
+      </div>
+      <div class="meta-pill">
+        <span class="meta-pill-label">Bidding Date</span>
+        <strong>mm/dd/yyyy</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs + Search -->
+  <div class="tabs-row">
+    <div class="tabs">
+      <div class="tab active">Execution Planning</div>
+      <div class="tab">Actuals (Cumulative)</div>
+      <div class="tab">Actuals (Daily)</div>
+      <div class="tab">Actuals (Summary)</div>
+    </div>
+    <div class="tabs-right">
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="5" stroke="currentColor" stroke-width="1.6"/><path d="m13 13 3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <input id="search" class="search-input" placeholder="Search" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== TOOLBAR ========== -->
+<div class="toolbar">
+  <div class="total">Estimated Total Amount: <strong id="totalAmt">$0</strong></div>
+
+  <div class="spacer"></div>
+
+  <div class="sim-sync" title="Simulation lives outside Abacus. Run Simulation sends data outbound; Import pulls the result back in.">
+    <button id="btnRunSim" class="btn sim-btn" disabled>Run Simulation</button>
+    <svg class="sim-sync-arrow" viewBox="0 0 22 14" fill="none" aria-hidden="true">
+      <path d="M3 4h14M14 1l3 3-3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M19 10H5M8 13l-3-3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <button id="btnImport" class="btn sim-btn" disabled>Import Latest Simulation Plan</button>
+  </div>
+
+  <button id="btnExport" class="btn export-btn" title="Export">
+    <svg class="ic" viewBox="0 0 20 20" fill="none"><path d="M10 13V3M10 3l-4 4M10 3l4 4M4 14v2a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>export</span>
+  </button>
+
+  <button id="btnDisplay" class="btn ghost-icon" title="Display Settings">
+    <svg class="ic" viewBox="0 0 20 20" fill="none"><path d="M10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="1.5"/><path d="M16 10c0 .4-.04.78-.1 1.16l1.86 1.46-1.8 3.12-2.2-.88c-.6.46-1.27.82-2 1.06L11.4 18h-2.8l-.36-2.08a6.5 6.5 0 0 1-2-1.06l-2.2.88-1.8-3.12 1.86-1.46A6.6 6.6 0 0 1 4 10c0-.4.04-.78.1-1.16L2.24 7.38l1.8-3.12 2.2.88c.6-.46 1.27-.82 2-1.06L8.6 2h2.8l.36 2.08a6.5 6.5 0 0 1 2 1.06l2.2-.88 1.8 3.12-1.86 1.46c.06.38.1.76.1 1.16Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+    <span>Display Setting</span>
+  </button>
+</div>
+
+<!-- ========== MAIN ========== -->
+<main>
+  <!-- Empty state (no plan yet) -->
+  <div id="emptyState" class="empty">
+    <h3>No plan selected</h3>
+    <p>Create or link a plan to start defining tasks and running Simulation.</p>
+    <button class="btn primary" onclick="openModal('createPlanModal')">Create Plan</button>
+  </div>
+
+  <!-- Table -->
+  <div id="tableWrap" class="table-wrap" style="display:none">
+    <table class="ep">
+      <thead>
+        <tr>
+          <th style="width:32px"></th>
+          <th class="col-wbs">WBS Code</th>
+          <th class="col-acct">Accounting Code</th>
+          <th>Task (Lv1)<span class="req">*</span></th>
+          <th>Task (Lv2)</th>
+          <th>Task (Lv3)</th>
+          <th>Task (Lv4)</th>
+          <th class="col-sccat">SC Category</th>
+          <th>Area</th>
+          <th>Block</th>
+          <th>Soil Type<span class="req">*</span></th>
+          <th>Quantity / Volume</th>
+          <th>Unit</th>
+          <th class="col-cdays">Construction Days</th>
+          <th class="col-dout">Daily Output</th>
+          <th class="col-start">Start Date</th>
+          <th class="col-end">End Date</th>
+          <th>Unit Rate</th>
+          <th>Amount</th>
+          <th class="col-memo">Memo</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+</main>
+
+<!-- ========== TABLE FOOTER (sticky) ========== -->
+<div id="tableFooter" class="table-footer" style="display:none">
+  <div class="footer-left">
+    <button id="btnAddRow" class="btn ghost-icon">
+      <svg class="ic" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <span>add row</span>
+    </button>
+    <button id="btnDeleteRow" class="btn ghost-icon" disabled>
+      <svg class="ic" viewBox="0 0 20 20" fill="none"><path d="M5 6h10M8 6V4h4v2M6 6l1 10h6l1-10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>delete row</span>
+    </button>
+    <span id="selectionHint" class="footer-hint"></span>
+  </div>
+  <div class="footer-right">
+    <button id="btnEdit" class="btn">Edit</button>
+    <button id="btnCancel" class="btn" style="display:none">Cancel</button>
+    <button id="btnSave" class="btn primary" style="display:none">Save</button>
+  </div>
+</div>
+
+<!-- ========== MODAL: Create Plan ========== -->
+<div id="createPlanModal" class="scrim">
+  <div class="modal">
+    <div class="modal-header">
+      Create Plan
+      <button class="close-x" onclick="closeModal('createPlanModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin:0 0 14px; color:var(--neutral-600)">
+        Create a new Execution Planning entry for this site. Detailed inputs (dates, contract, target scope) will be configured next.
+      </p>
+      <div class="field">
+        <label>Plan Name</label>
+        <input id="newPlanName" value="Tochigi-Highway-Plan V1" />
+        <div class="hint">A plan is the unit linked to a Smart Construction Simulation Plan.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('createPlanModal')">Cancel</button>
+      <button class="btn primary" onclick="createPlan()">Create Plan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MODAL: Plan Settings ========== -->
+<div id="planSettingsModal" class="scrim">
+  <div class="modal lg">
+    <div class="modal-header">
+      Plan Settings
+      <button class="close-x" onclick="closeModal('planSettingsModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin:0 0 14px; color:var(--neutral-600)">
+        Choose or update the Smart Construction Simulation Plan linked to this Abacus plan.
+        Plan management is primarily owned by Simulation.
+      </p>
+      <div class="field">
+        <label>Current Plan</label>
+        <div class="value-row"><span id="ps_currentPlan">—</span></div>
+      </div>
+      <div class="field">
+        <label>Change Plan</label>
+        <select id="ps_linkedSim">
+          <option>Tochigi-Highway-Plan V1 (current)</option>
+          <option>Tochigi-Highway-Plan V2</option>
+          <option>Tochigi-Highway-Plan V3</option>
+        </select>
+        <div class="hint">Abacus Plan and Simulation Plan are the same shared plan. Switch creates an intentional reload of the linked plan.</div>
+      </div>
+      <div class="field">
+        <label>Last Imported</label>
+        <div class="value-row"><span id="ps_lastImported">—</span></div>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:8px">
+        <button class="btn" onclick="openModal('createPlanModal'); closeModal('planSettingsModal')">Create New Plan</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('planSettingsModal')">Cancel</button>
+      <button class="btn primary" onclick="applyPlanSettings()">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MODAL: Run Simulation Confirm ========== -->
+<div id="runSimModal" class="scrim">
+  <div class="modal">
+    <div class="modal-header">
+      Run Simulation
+      <button class="close-x" onclick="closeModal('runSimModal')">×</button>
+    </div>
+    <div class="modal-body">
+      Abacus will send <strong>task quantities, construction unit rates, and resources</strong> to Smart Construction Simulation.
+      Simulation may update area, block, schedule, and resource details.
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('runSimModal')">Cancel</button>
+      <button class="btn primary" onclick="runSimulation()">Run Simulation</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MODAL: Import Confirm ========== -->
+<div id="importModal" class="scrim">
+  <div class="modal">
+    <div class="modal-header">
+      Import Latest Simulation Plan
+      <button class="close-x" onclick="closeModal('importModal')">×</button>
+    </div>
+    <div class="modal-body">
+      The current Execution Planning table will be updated with the latest Simulation-generated
+      <strong>areas, blocks, SC tasks, resources, and costs</strong>. Your edits to Abacus-managed fields will be preserved.
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('importModal')">Cancel</button>
+      <button class="btn primary" onclick="importLatest()">Import</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== DRAWER: Resources ========== -->
+<div id="curDrawerScrim" class="drawer-scrim" onclick="closeDrawer()"></div>
+<aside id="curDrawer" class="drawer">
+  <div class="drawer-header">
+    <div>
+      <div class="drawer-title">Resources</div>
+      <div id="cur_subtitle" class="drawer-subtitle">—</div>
+    </div>
+    <button class="close-x" onclick="closeDrawer()">×</button>
+  </div>
+
+  <div class="drawer-body">
+    <div class="field">
+      <label>Construction Unit Rate</label>
+      <select id="cur_select" onchange="onCurSelect()">
+        <option value="">— Select a Construction Unit Rate —</option>
+        <option value="K-001">K-001 · Earthwork Fill — Sandy Soil · $1.32 / m³</option>
+        <option value="K-002">K-002 · Earthwork Fill — Gravel Soil · $0.57 / m³</option>
+        <option value="K-003">K-003 · Earthwork Fill — Clay Soil · $0.57 / m³</option>
+        <option value="K-004">K-004 · Earthwork Cut — Soft Rock · $2.10 / m³</option>
+        <option value="K-005">K-005 · Earthwork Cut — Hard Rock · $3.85 / m³</option>
+        <option value="K-NEW">+ Create new CUR…</option>
+      </select>
+      <div class="hint">Pulled from the Knowledge Library. A CUR carries its own resource composition; selecting one inherits the resources below.</div>
+    </div>
+
+    <div id="cur_summary" class="cur-summary" style="display:none">
+      <div class="chip">CUR <strong id="cur_value">—</strong></div>
+      <div class="chip">Daily Output <strong id="cur_daily">—</strong></div>
+      <div class="chip">Soil <strong id="cur_soil">—</strong></div>
+    </div>
+
+    <div class="section-title">Resources inherited from this CUR</div>
+    <table class="sc" id="cur_resources_tbl" style="width:100%; display:none">
+      <thead><tr>
+        <th>Resource</th><th>Type</th>
+        <th style="text-align:right">No. Units</th>
+        <th style="text-align:right">Rate ($/h)</th>
+      </tr></thead>
+      <tbody id="cur_resources_body"></tbody>
+    </table>
+    <div id="cur_resources_empty" class="empty-nested">Select a CUR above to view its resources.</div>
+
+    <div class="drawer-note">
+      <strong>Prices are editable per task.</strong> Resource composition and units are inherited from the selected CUR. To change quantity or composition, edit the parent task or update the CUR in Knowledge, then re-run Simulation.
+    </div>
+  </div>
+
+  <div class="drawer-footer">
+    <button class="btn" onclick="closeDrawer()">Cancel</button>
+    <button class="btn primary" onclick="closeDrawer(); toast('Resources saved', 'success')">Save</button>
+  </div>
+</aside>
+
+<!-- ========== MODAL: Display Settings ========== -->
+<div id="displayModal" class="scrim">
+  <div class="modal lg">
+    <div class="modal-header">
+      Display Settings
+      <button class="close-x" onclick="closeModal('displayModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:11px; font-weight:700; color:var(--neutral-600); text-transform:uppercase; letter-spacing:.4px; margin-bottom:6px">Always shown</div>
+      <div class="checks" style="margin-bottom:14px">
+        <label><input type="checkbox" checked disabled /> Task (Lv1)</label>
+        <label><input type="checkbox" checked disabled /> Task (Lv2)</label>
+        <label><input type="checkbox" checked disabled /> Task (Lv3)</label>
+        <label><input type="checkbox" checked disabled /> Task (Lv4)</label>
+        <label><input type="checkbox" checked disabled /> Area</label>
+        <label><input type="checkbox" checked disabled /> Block</label>
+        <label><input type="checkbox" checked disabled /> Soil Type</label>
+        <label><input type="checkbox" checked disabled /> Quantity / Volume</label>
+        <label><input type="checkbox" checked disabled /> Unit</label>
+        <label><input type="checkbox" checked disabled /> Unit Rate</label>
+        <label><input type="checkbox" checked disabled /> Amount</label>
+        <label><input type="checkbox" checked disabled /> Actions</label>
+      </div>
+      <div style="font-size:11px; font-weight:700; color:var(--neutral-600); text-transform:uppercase; letter-spacing:.4px; margin-bottom:6px">Optional</div>
+      <div class="checks">
+        <label><input type="checkbox" data-col="wbs"   /> WBS Code</label>
+        <label><input type="checkbox" data-col="acct"  /> Accounting Code</label>
+        <label><input type="checkbox" data-col="sccat" /> SC Category</label>
+        <label><input type="checkbox" data-col="cdays" /> Construction Days</label>
+        <label><input type="checkbox" data-col="dout"  /> Daily Output</label>
+        <label><input type="checkbox" data-col="start" /> Start Date</label>
+        <label><input type="checkbox" data-col="end"   /> End Date</label>
+        <label><input type="checkbox" data-col="memo"  /> Memo</label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('displayModal')">Cancel</button>
+      <button class="btn primary" onclick="applyDisplay()">Apply</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== AUTOCOMPLETE SUGGESTIONS (per Notion spec — 入力補完) ========== -->
+<datalist id="dl_lv1">
+  <option value="Earthwork (Fill) / 土工事 盛土"></option>
+  <option value="Earthwork (Cut) / 土工事 切土"></option>
+  <option value="Earthwork (Spoil Transport) / 残土運搬"></option>
+  <option value="Earthwork (Surface Stripping) / 表土剥ぎ"></option>
+  <option value="Structural Work / 構造物工事"></option>
+  <option value="Paving Work / 舗装工事"></option>
+  <option value="Drainage Work / 排水工事"></option>
+  <option value="Retaining Wall / 擁壁工事"></option>
+</datalist>
+<datalist id="dl_lv2">
+  <option value="Fill / 盛土"></option>
+  <option value="Cut / 切土"></option>
+  <option value="Spoil Transport / 残土運搬"></option>
+  <option value="Roadbed / 路体"></option>
+  <option value="Subgrade / 路床"></option>
+  <option value="Surface / 表層"></option>
+  <option value="Foundation / 基礎"></option>
+</datalist>
+<datalist id="dl_lv3">
+  <option value="Roadbed Fill / 路体盛土工"></option>
+  <option value="Subgrade Fill / 路床盛土工"></option>
+  <option value="Surface Cut / 表層切土工"></option>
+  <option value="Surface Stripping / 表土剥ぎ工"></option>
+  <option value="Embankment / 築堤工"></option>
+  <option value="Slope Protection / 法面保護工"></option>
+  <option value="Backfill / 埋戻し工"></option>
+</datalist>
+<datalist id="dl_lv4">
+  <option value="Soil / 土"></option>
+  <option value="Rock / 岩"></option>
+  <option value="Mixed / 混合"></option>
+  <option value="Standard / 標準"></option>
+  <option value="Reinforced / 補強"></option>
+</datalist>
+
+<!-- ========== TOAST ========== -->
+<div id="toast" class="toast"></div>
+
+<script>
+/* ============================================================
+   State
+============================================================ */
+const state = {
+  planName: null,
+  lastEdited: null,
+  lastImported: null,
+  simulationRun: false,
+  imported: false,
+  expanded: new Set(),
+  selectedId: null,    // row selected for delete
+  editMode: false,     // View / Edit mode
+  rowsBackup: null,    // for Cancel
+  dirty: false,        // unsaved changes within edit mode
+  simNeedsRefresh: false, // planning changed since last Sim → show update badge on Run Sim
+  simHasNewer: false,  // Sim has newer result not yet imported → show badge on Import
+  acquired: false,     // Performance Data acquisition started → planning locked
+  rows: [],
+};
+
+/* No auto-populated rows — user adds parent tasks manually via Add Parent Task. */
+
+/* Post-import: split by Area + Block (per the spec example) */
+const ROWS_POST = [
+  { id:'r1a', wbs:'1.1.1', acct:'A-101', lv1:'Earthwork (Fill)', lv2:'Fill', lv3:'Roadbed Fill', lv4:'Soil',
+    scCat:'土工事/盛土', area:'Area A', block:'Block A1', soil:'Sandy Soil', qty:3000, unit:'m³',
+    cdays:5, dout:600, startDate:'07/01/2026', endDate:'07/05/2026', rate:1.32, amount:3960, memo:'',
+    sc:{ dailyOutput:600, cur:1.32, tasks:[
+      { name:'Receipt of Excavated Soil', start:'8:00', end:'17:00', eq:'Backhoe 0.7m³ × 1', rate:222, total:1109 },
+      { name:'Spreading', start:'8:00', end:'17:00', eq:'Bulldozer D61PX × 1', rate:317, total:1585 },
+      { name:'Compaction', start:'8:00', end:'17:00', eq:'Vibratory Roller 10t × 1', rate:253, total:1902 },
+    ]}
+  },
+  { id:'r1b', wbs:'1.1.2', acct:'A-101', lv1:'Earthwork (Fill)', lv2:'Fill', lv3:'Roadbed Fill', lv4:'Soil',
+    scCat:'土工事/盛土', area:'Area A', block:'Block A2', soil:'Gravel Soil', qty:6000, unit:'m³',
+    cdays:9, dout:720, startDate:'07/06/2026', endDate:'07/16/2026', rate:0.57, amount:3420, memo:'',
+    sc:{ dailyOutput:720, cur:0.57, tasks:[
+      { name:'Receipt of Excavated Soil', start:'8:00', end:'17:00', eq:'Backhoe 0.7m³ × 1', rate:222, total:1850 },
+      { name:'Spreading', start:'8:00', end:'17:00', eq:'Bulldozer D61PX × 1', rate:317, total:2640 },
+      { name:'Compaction', start:'8:00', end:'17:00', eq:'Vibratory Roller 10t × 1', rate:253, total:2107 },
+    ]}
+  },
+  { id:'r1c', wbs:'1.2.1', acct:'A-102', lv1:'Earthwork (Fill)', lv2:'Fill', lv3:'Roadbed Fill', lv4:'Soil',
+    scCat:'土工事/盛土', area:'Area B', block:'Block B1', soil:'Clay Soil', qty:800, unit:'m³',
+    cdays:2, dout:560, startDate:'07/17/2026', endDate:'07/20/2026', rate:0.57, amount:456, memo:'',
+    sc:{ dailyOutput:560, cur:0.57, tasks:[
+      { name:'Receipt of Excavated Soil', start:'8:00', end:'17:00', eq:'Backhoe 0.7m³ × 1', rate:222, total:317 },
+      { name:'Compaction', start:'8:00', end:'17:00', eq:'Vibratory Roller 10t × 1', rate:253, total:362 },
+    ]}
+  },
+];
+
+/* ============================================================
+   Helpers
+============================================================ */
+const $ = (id) => document.getElementById(id);
+const fmt$ = (n) => (n===''||n==null) ? '—' : '$' + Number(n).toLocaleString(undefined,{minimumFractionDigits: Number.isInteger(Number(n))?0:2, maximumFractionDigits:2});
+const fmtNum = (n) => (n===''||n==null) ? '—' : Number(n).toLocaleString();
+function ts() {
+  const d = new Date();
+  const pad = (x)=>String(x).padStart(2,'0');
+  return `${pad(d.getMonth()+1)}/${pad(d.getDate())}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function toast(msg, kind) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (kind ? ' '+kind : '');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=>{ t.className = 'toast'; }, 5000);
+}
+
+function openModal(id){ $(id).classList.add('show'); }
+function closeModal(id){ $(id).classList.remove('show'); }
+
+/* ============================================================
+   Render
+============================================================ */
+function render() {
+  // Header
+  $('planPill').textContent = state.planName ? state.planName : '— No plan selected —';
+  // Update the Last Edited label (the icon SVG sibling is preserved)
+  const leText = state.lastEdited ? 'Last Edited: ' + state.lastEdited : 'Last Edited: 00:00 mm/dd/yyyy';
+  const leSpan = $('lastEdited').querySelector('span');
+  if (leSpan) leSpan.textContent = leText;
+
+  // Toolbar buttons
+  const hasRows = state.rows.length > 0;
+  $('btnRunSim').disabled = !state.planName || state.editMode;
+  $('btnRunSim').title = !state.planName
+    ? 'Create a plan first'
+    : state.editMode ? 'Save or cancel your edits first'
+    : (state.simNeedsRefresh ? 'Simulation update required — sim-sensitive inputs changed' : 'Send plan inputs to Smart Construction Simulation');
+  $('btnRunSim').classList.toggle('has-badge', !!state.simNeedsRefresh && !state.editMode);
+  $('btnRunSim').dataset.badge = state.simNeedsRefresh ? 'Simulation update required' : '';
+
+  $('btnImport').disabled = !state.planName || state.editMode;
+  $('btnImport').title = !state.planName
+    ? 'Create a plan first'
+    : state.editMode ? 'Save or cancel your edits first'
+    : (state.simHasNewer ? 'New Simulation Update Available' : 'Pull the latest Simulation result into Abacus');
+  $('btnImport').classList.toggle('has-badge', !!state.simHasNewer && !state.editMode);
+  $('btnImport').dataset.badge = state.simHasNewer ? 'New Simulation Update Available' : '';
+
+  $('btnExport').disabled = !hasRows;
+  $('btnExport').title = !hasRows ? 'Add rows before exporting' : 'Export';
+  $('btnImport').disabled = !state.simulationRun;
+  $('btnAcquire').disabled = !state.imported || state.acquired;
+  $('btnAcquire').textContent = state.acquired ? 'Performance Data Acquired' : 'Acquire Performance Data';
+  $('btnAcquire').title = state.acquired
+    ? 'Planning is locked — Execution Planning is in Actuals workflow'
+    : state.imported
+      ? 'Start performance data acquisition (locks Execution Planning)'
+      : 'Available after a Simulation Plan is imported';
+
+  // Empty vs table
+  $('emptyState').style.display = state.planName ? 'none' : 'block';
+  $('tableWrap').style.display = state.planName ? 'block' : 'none';
+
+  // Toggle Simulation-only columns
+  document.body.classList.toggle('imported', state.imported);
+
+  // Sticky table footer — visible whenever a plan is open
+  $('tableFooter').style.display = state.planName ? 'flex' : 'none';
+  // Add / Delete are edit-mode-only; also disabled post-import and post-acquire
+  const addAllowed = state.editMode && !state.imported && !state.acquired;
+  $('btnAddRow').style.display = state.editMode ? 'inline-flex' : 'none';
+  $('btnDeleteRow').style.display = state.editMode ? 'inline-flex' : 'none';
+  $('btnAddRow').disabled = !addAllowed;
+  $('btnAddRow').title = state.acquired ? 'Planning is locked' : (state.imported ? 'Rows are managed by Simulation after import' : 'Add a new parent task row');
+  $('btnDeleteRow').disabled = !addAllowed || !state.selectedId;
+  $('btnDeleteRow').title = state.acquired
+    ? 'Planning is locked'
+    : state.imported
+      ? 'Rows are managed by Simulation after import'
+      : (state.selectedId ? 'Delete the selected row' : 'Select a row first');
+  $('btnEdit').style.display = state.editMode ? 'none' : 'inline-flex';
+  $('btnEdit').disabled = state.acquired;
+  $('btnEdit').title = state.acquired ? 'Planning is locked after Acquire Performance Data' : 'Switch to Edit mode';
+  $('btnCancel').style.display = state.editMode ? 'inline-flex' : 'none';
+  $('btnSave').style.display = state.editMode ? 'inline-flex' : 'none';
+  $('btnSave').disabled = !state.dirty;
+  $('selectionHint').textContent = (state.editMode && state.selectedId) ? 'Row selected' : '';
+
+  // Total
+  const total = state.rows.reduce((s, r) => s + (Number(r.amount)||0), 0);
+  $('totalAmt').textContent = fmt$(total || 0);
+
+  // Body
+  const tbody = $('tbody');
+  tbody.innerHTML = '';
+  if (state.rows.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="21" style="padding:36px 16px; text-align:center; color:var(--neutral-600)">
+      <div style="font-weight:600; color:var(--neutral-800); margin-bottom:4px">No parent tasks yet</div>
+      <div style="font-size:12px; color:var(--neutral-500); margin-bottom:12px">Add parent tasks, assign resources, then Run Simulation to generate Area / Block details.</div>
+      <button class="btn primary btn-sm" onclick="addParentTask()">+ Add Parent Task</button>
+    </td></tr>`;
+    return;
+  }
+
+  state.rows.forEach((r, idx) => {
+    const isExpanded = state.expanded.has(r.id);
+    const isSelected = state.selectedId === r.id;
+    const tr = document.createElement('tr');
+    tr.dataset.rowId = r.id;
+    if (idx % 2 === 1) tr.classList.add('row-alt');
+    if (isExpanded) tr.classList.add('expanded');
+    if (isSelected) tr.classList.add('selected');
+    tr.innerHTML = `
+      <td>
+        <button class="expand-btn ${isExpanded?'open':''}" onclick="toggleExpand('${r.id}')" title="${isExpanded?'Collapse':'Expand'} SC tasks" aria-label="${isExpanded?'Collapse':'Expand'}"><svg viewBox="0 0 12 12" width="10" height="10" fill="none"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </td>
+      <td class="col-wbs">${cellInput(r.id,'wbs', r.wbs, {placeholder:'—'})}</td>
+      <td class="col-acct">${cellInput(r.id,'acct', r.acct, {placeholder:'—'})}</td>
+      <td>${cellInput(r.id,'lv1', r.lv1, {placeholder:'e.g. Earthwork (Fill)', listId:'dl_lv1'})}</td>
+      <td>${cellInput(r.id,'lv2', r.lv2, {placeholder:'e.g. Fill', listId:'dl_lv2'})}</td>
+      <td>${cellInput(r.id,'lv3', r.lv3, {placeholder:'e.g. Roadbed Fill', listId:'dl_lv3'})}</td>
+      <td>${cellInput(r.id,'lv4', r.lv4, {placeholder:'e.g. Soil', listId:'dl_lv4'})}</td>
+      <td class="locked col-sccat">${r.scCat || '—'}</td>
+      <td class="locked">${r.area || '—'}</td>
+      <td class="locked">${r.block || '—'}</td>
+      <td>${cellInput(r.id,'soil', r.soil, {options:['Sandy Soil','Gravel Soil','Clay Soil','Soft Rock','Hard Rock'], placeholder:'Required'})}</td>
+      <td class="num">${cellInput(r.id,'qty', r.qty, {kind:'num', placeholder:'0'})}</td>
+      <td>${cellInput(r.id,'unit', r.unit, {options:['m³','m²','m','t']})}</td>
+      <td class="num locked col-cdays">${r.cdays || '—'}</td>
+      <td class="num locked col-dout">${r.dout ? r.dout + ' ' + (r.unit||'') : '—'}</td>
+      <td class="locked col-start">${r.startDate || '—'}</td>
+      <td class="locked col-end">${r.endDate || '—'}</td>
+      <td class="num">${cellInput(r.id,'rate', r.rate, {kind:'num', placeholder:'0.00'})}</td>
+      <td class="num"><strong>${r.amount===''||r.amount==null ? '—' : fmt$(r.amount)}</strong></td>
+      <td class="col-memo">${cellInput(r.id,'memo', r.memo, {placeholder:'—'})}</td>
+      <td>
+        <button class="btn btn-sm" onclick="event.stopPropagation(); openCurDrawer('${r.id}')" title="Resources">Resources</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+
+    if (isExpanded) {
+      const trN = document.createElement('tr');
+      trN.innerHTML = `<td colspan="21" style="padding:0">${renderNested(r)}</td>`;
+      tbody.appendChild(trN);
+    }
+  });
+}
+
+/**
+ * Unified inline cell renderer.
+ * - Pre-import: every Abacus-managed field is freely editable inline.
+ * - Post-import: fields with postLocked=true (Lv1-4) become permanently read-only;
+ *   the others (soil, qty, unit) remain editable. Area / Block / Unit Rate are rendered separately as locked.
+ */
+function cellInput(id, field, val, opts={}) {
+  const isLockedPostImport = state.imported && opts.postLocked;
+  const editable = state.editMode && !state.acquired && !isLockedPostImport;
+
+  if (!editable) {
+    if (val==null || val==='') return '—';
+    return opts.kind==='num' ? fmtNum(val) : String(val);
+  }
+
+  if (opts.options) {
+    const items = opts.options.map(o => `<option value="${o}"${String(o)===String(val)?' selected':''}>${o}</option>`).join('');
+    return `<select class="cell-input" data-id="${id}" data-field="${field}"><option value="">${opts.placeholder?opts.placeholder:'—'}</option>${items}</select>`;
+  }
+
+  const type = opts.kind==='num' ? 'type="number"' : 'type="text"';
+  const listAttr = opts.listId ? `list="${opts.listId}"` : '';
+  return `<input class="cell-input" ${type} ${listAttr} data-id="${id}" data-field="${field}" value="${val==null?'':val}" placeholder="${opts.placeholder||''}" />`;
+}
+
+function renderNested(r) {
+  if (!r.sc) {
+    return `<div class="nested">
+      <div class="title">Simulation-generated SC Tasks</div>
+      <div class="subtitle">No Simulation results yet. Run Simulation or import a Simulation Plan to generate area/block details.</div>
+      <div class="empty-nested">No Simulation results yet.</div>
+    </div>`;
+  }
+  return `<div class="nested">
+    <div class="title">Simulation-generated SC Tasks</div>
+    <div class="subtitle">Edit parent task or resource prices, then re-run or re-import Simulation to update details.</div>
+    <table class="sc">
+      <thead><tr>
+        <th>Work Details</th><th>Start</th><th>End</th>
+        <th>Equipment &amp; No. Units</th>
+        <th>Resource Rate</th>
+        <th>Total Amount</th>
+      </tr></thead>
+      <tbody>
+        ${r.sc.tasks.map(t=>`<tr>
+          <td>${t.name}</td><td>${t.start}</td><td>${t.end}</td>
+          <td>${t.eq}</td>
+          <td>${fmt$(t.rate)}/h</td>
+          <td><strong>${fmt$(t.total)}</strong></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+/* ============================================================
+   Actions
+============================================================ */
+function toggleExpand(id) {
+  if (state.expanded.has(id)) state.expanded.delete(id);
+  else state.expanded.add(id);
+  render();
+}
+
+function createPlan() {
+  const name = $('newPlanName').value.trim() || 'Tochigi-Highway-Plan V1';
+  state.planName = name;
+  state.lastEdited = ts();
+  state.rows = [];                  // empty Execution Planning
+  state.simulationRun = false;
+  state.imported = false;
+  state.expanded = new Set();
+  closeModal('createPlanModal');
+  toast('Plan created — add parent tasks to get started', 'success');
+  render();
+}
+
+function addParentTask() {
+  if (!state.editMode) { enterEdit(); }
+  if (state.imported) { toast('Rows are managed by Simulation after import'); return; }
+  if (state.acquired) { toast('Planning is locked'); return; }
+  const newRow = {
+    id: 'r' + Date.now(),
+    wbs:'', acct:'',
+    lv1:'', lv2:'', lv3:'', lv4:'',
+    scCat:'', area:'', block:'',
+    soil:'', qty:'', unit:'m³',
+    cdays:'', dout:'', startDate:'', endDate:'',
+    rate:'', amount:'', memo:''
+  };
+  state.rows.push(newRow);
+  state.selectedId = newRow.id;
+  state.dirty = true;
+  render();
+  // Focus the new row's Lv1 input
+  setTimeout(() => {
+    const inp = document.querySelector(`.cell-input[data-id="${newRow.id}"][data-field="lv1"]`);
+    if (inp) inp.focus();
+  }, 0);
+}
+
+function deleteSelectedRow() {
+  if (!state.selectedId || state.imported || state.acquired) return;
+  state.rows = state.rows.filter(r => r.id !== state.selectedId);
+  state.expanded.delete(state.selectedId);
+  state.selectedId = null;
+  state.dirty = true;
+  state.simNeedsRefresh = true;
+  render();
+  toast('Row deleted');
+}
+
+function selectRow(id) {
+  state.selectedId = state.selectedId === id ? null : id;
+  render();
+}
+
+function enterEdit() {
+  if (state.acquired) return;
+  state.rowsBackup = JSON.parse(JSON.stringify(state.rows));
+  state.editMode = true;
+  state.dirty = false;
+  render();
+}
+
+function cancelEdit() {
+  state.rows = state.rowsBackup || state.rows;
+  state.rowsBackup = null;
+  state.editMode = false;
+  state.dirty = false;
+  state.selectedId = null;
+  render();
+  toast('Edits discarded');
+}
+
+function saveTable() {
+  if (!state.dirty) { state.editMode = false; render(); return; }
+  state.dirty = false;
+  state.editMode = false;
+  state.rowsBackup = null;
+  state.lastEdited = ts();
+  state.simNeedsRefresh = true; // any save → simulation may need refresh
+  render();
+  toast('Changes saved', 'success');
+}
+
+function applyDisplay() {
+  document.querySelectorAll('#displayModal input[data-col]').forEach(cb => {
+    document.body.classList.toggle('show-' + cb.dataset.col, cb.checked);
+  });
+  closeModal('displayModal');
+  toast('Display settings saved', 'success');
+}
+
+/* CUR catalog — would come from Knowledge Library in the live build */
+const CUR_CATALOG = {
+  'K-001': { name:'Earthwork Fill — Sandy Soil', cur:1.32, daily:600, soil:'Sandy Soil', resources:[
+    {res:'Backhoe 0.7m³', type:'Machinery', units:1, rate:27.75},
+    {res:'Bulldozer D61PX', type:'Machinery', units:1, rate:39.62},
+    {res:'Vibratory Roller 10t', type:'Machinery', units:1, rate:31.62},
+    {res:'Operator', type:'Labor', units:3, rate:17.50},
+  ]},
+  'K-002': { name:'Earthwork Fill — Gravel Soil', cur:0.57, daily:720, soil:'Gravel Soil', resources:[
+    {res:'Backhoe 0.7m³', type:'Machinery', units:1, rate:27.75},
+    {res:'Bulldozer D61PX', type:'Machinery', units:1, rate:39.62},
+    {res:'Operator', type:'Labor', units:2, rate:17.50},
+  ]},
+  'K-003': { name:'Earthwork Fill — Clay Soil', cur:0.57, daily:560, soil:'Clay Soil', resources:[
+    {res:'Backhoe 0.7m³', type:'Machinery', units:1, rate:27.75},
+    {res:'Vibratory Roller 10t', type:'Machinery', units:1, rate:31.62},
+    {res:'Operator', type:'Labor', units:2, rate:17.50},
+  ]},
+  'K-004': { name:'Earthwork Cut — Soft Rock', cur:2.10, daily:380, soil:'Soft Rock', resources:[
+    {res:'Backhoe 0.7m³ (rock bucket)', type:'Machinery', units:1, rate:33.50},
+    {res:'Breaker Attachment', type:'Machinery', units:1, rate:23.12},
+    {res:'Operator', type:'Labor', units:2, rate:17.50},
+  ]},
+  'K-005': { name:'Earthwork Cut — Hard Rock', cur:3.85, daily:220, soil:'Hard Rock', resources:[
+    {res:'Hydraulic Breaker 1.5t', type:'Machinery', units:1, rate:51.50},
+    {res:'Backhoe 1.0m³', type:'Machinery', units:1, rate:37.25},
+    {res:'Operator', type:'Labor', units:2, rate:17.50},
+  ]},
+};
+
+function openCurDrawer(rowId) {
+  const r = state.rows.find(x => x.id === rowId);
+  state._activeRowId = rowId;
+  $('cur_subtitle').textContent = r ? `${r.lv1 || 'Task'}${r.area ? ' · ' + r.area + ' / ' + r.block : ''}` : 'Task';
+  // Preselect by row.rate match (rough)
+  let preselect = '';
+  Object.entries(CUR_CATALOG).forEach(([k, v]) => { if (r && r.rate && Number(r.rate) === v.cur) preselect = k; });
+  $('cur_select').value = preselect;
+  renderCurDetails(preselect);
+  $('curDrawer').classList.add('show');
+  $('curDrawerScrim').classList.add('show');
+}
+
+function closeDrawer() {
+  $('curDrawer').classList.remove('show');
+  $('curDrawerScrim').classList.remove('show');
+}
+
+function onCurSelect() {
+  const k = $('cur_select').value;
+  if (k === 'K-NEW') {
+    toast('Create new CUR — opens Knowledge Library (prototype)');
+    $('cur_select').value = '';
+    renderCurDetails('');
+    return;
+  }
+  renderCurDetails(k);
+}
+
+function renderCurDetails(k) {
+  const entry = CUR_CATALOG[k];
+  if (!entry) {
+    $('cur_summary').style.display = 'none';
+    $('cur_resources_tbl').style.display = 'none';
+    $('cur_resources_empty').style.display = 'block';
+    return;
+  }
+  $('cur_summary').style.display = 'flex';
+  $('cur_value').textContent = '$' + entry.cur.toFixed(2);
+  $('cur_daily').textContent = entry.daily + ' m³/day';
+  $('cur_soil').textContent = entry.soil;
+  $('cur_resources_tbl').style.display = 'table';
+  $('cur_resources_empty').style.display = 'none';
+  $('cur_resources_body').innerHTML = entry.resources.map(x => `
+    <tr>
+      <td>${x.res}</td>
+      <td>${x.type}</td>
+      <td class="num">${x.units}</td>
+      <td class="num"><input class="cell-input" type="number" step="0.01" value="${x.rate}" style="width:80px; border:1px solid var(--neutral-200); background:var(--white)" /> <span style="color:var(--neutral-500); font-size:11px">/h</span></td>
+    </tr>
+  `).join('');
+}
+
+function openImportConfirm() {
+  if (!state.simulationRun) {
+    toast('Run Simulation first, then import the result');
+    return;
+  }
+  openModal('importModal');
+}
+
+function runSimulation() {
+  closeModal('runSimModal');
+  toast('Sending plan inputs to Simulation…');
+  setTimeout(()=>{
+    state.simulationRun = true;
+    state.simNeedsRefresh = false;
+    state.simHasNewer = true;
+    state.lastEdited = ts();
+    toast('Simulation complete. A new Simulation Plan is available — Import to update the table.', 'success');
+    render();
+  }, 700);
+}
+
+function importLatest() {
+  closeModal('importModal');
+  state.imported = true;
+  state.rows = JSON.parse(JSON.stringify(ROWS_POST));
+  state.lastImported = ts();
+  state.lastEdited = state.lastImported;
+  state.expanded = new Set(['r1a']);
+  state.dirty = false;
+  state.selectedId = null;
+  state.simHasNewer = false;
+  state.simNeedsRefresh = false;
+  toast('Simulation Plan imported — Area, Block, SC tasks updated', 'success');
+  render();
+}
+
+function applyPlanSettings() {
+  state.lastEdited = ts();
+  closeModal('planSettingsModal');
+  toast('Plan settings applied', 'success');
+  render();
+}
+
+/* ============================================================
+   Wiring
+============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  $('planPill').addEventListener('click', () => {
+    // Refresh plan settings fields
+    $('ps_currentPlan').textContent = state.planName || '— No plan selected —';
+    $('ps_lastImported').textContent = state.lastImported ? 'Last imported: ' + state.lastImported : 'Never';
+    if (!state.planName) {
+      openModal('createPlanModal');
+    } else {
+      openModal('planSettingsModal');
+    }
+  });
+
+  $('btnRunSim').addEventListener('click', () => openModal('runSimModal'));
+  $('btnImport').addEventListener('click', openImportConfirm);
+  $('btnDisplay').addEventListener('click', () => openModal('displayModal'));
+  $('btnExport').addEventListener('click', () => toast('Export started (prototype)'));
+  $('btnAcquire').addEventListener('click', () => {
+    if (!state.imported || state.acquired) return;
+    state.acquired = true;
+    state.editMode = false;
+    state.lastEdited = ts();
+    render();
+    toast('Performance data acquisition started. Execution Planning is now locked.', 'success');
+  });
+
+  // Footer
+  $('btnEdit').addEventListener('click', enterEdit);
+  $('btnCancel').addEventListener('click', cancelEdit);
+  $('btnAddRow').addEventListener('click', addParentTask);
+  $('btnDeleteRow').addEventListener('click', deleteSelectedRow);
+  $('btnSave').addEventListener('click', saveTable);
+
+  // Row click selects (ignore clicks on inputs / buttons inside the row)
+  $('tbody').addEventListener('click', (e) => {
+    if (e.target.closest('input, select, button')) return;
+    const tr = e.target.closest('tr[data-row-id]');
+    if (tr) selectRow(tr.dataset.rowId);
+  });
+
+  // Click scrim to close modal
+  document.querySelectorAll('.scrim').forEach(s => {
+    s.addEventListener('click', (e) => { if (e.target === s) s.classList.remove('show'); });
+  });
+
+  // Inline cell edits — save to state on change/blur
+  $('tbody').addEventListener('change', (e) => {
+    const el = e.target;
+    if (!el.matches('.cell-input[data-id]')) return;
+    const r = state.rows.find(x => x.id === el.dataset.id);
+    if (!r) return;
+    const f = el.dataset.field;
+    let v = el.value;
+    if (f === 'qty' || f === 'rate') v = v === '' ? '' : Number(v);
+    r[f] = v;
+    if ((f === 'qty' || f === 'rate') && r.qty !== '' && r.rate !== '') {
+      r.amount = +(Number(r.qty)*Number(r.rate)).toFixed(2);
+      const amtCell = document.querySelector(`tr[data-row-id="${r.id}"] td:nth-last-child(3) strong`);
+      if (amtCell) amtCell.textContent = fmt$(r.amount);
+    }
+    state.dirty = true;
+    // Sim-sensitive fields → mark simulation refresh needed
+    if (['qty','soil','lv1','lv2','lv3','lv4'].includes(f)) state.simNeedsRefresh = true;
+    const total = state.rows.reduce((s, r) => s + (Number(r.amount)||0), 0);
+    $('totalAmt').textContent = fmt$(total || 0);
+    $('btnSave').disabled = false;
+  });
+
+  // Search just toasts for prototype
+  $('search').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') toast('Search: "' + e.target.value + '" (prototype)');
+  });
+
+  render();
+});
+</script>
+
+</body>
+</html>
