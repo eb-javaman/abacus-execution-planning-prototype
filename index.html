@@ -718,7 +718,7 @@
 
   <div class="drawer-footer">
     <button class="btn" onclick="closeDrawer()">Cancel</button>
-    <button class="btn primary" onclick="closeDrawer(); toast('Resources saved', 'success')">Save</button>
+    <button class="btn primary" onclick="saveDrawer()">Save</button>
   </div>
 </aside>
 
@@ -823,6 +823,11 @@ const state = {
   simHasNewer: false,  // Sim has newer result not yet imported → show badge on Import
   acquired: false,     // Performance Data acquisition started → planning locked
   rows: [],
+  // Resources drawer state — persisted for the session
+  curByRow: {},          // { rowId: 'K-001' }
+  resourceOverrides: {}, // { rowId: { resourceName: rate } }
+  _activeRowId: null,
+  _drawerSnapshot: null, // captured on open, restored on Cancel/X/scrim
 };
 
 /* No auto-populated rows — user adds parent tasks manually via Add Parent Task. */
@@ -1198,13 +1203,96 @@ function openCurDrawer(rowId) {
   const r = state.rows.find(x => x.id === rowId);
   state._activeRowId = rowId;
   $('cur_subtitle').textContent = r ? `${r.lv1 || 'Task'}${r.area ? ' · ' + r.area + ' / ' + r.block : ''}` : 'Task';
-  // Preselect by row.rate match (rough)
-  let preselect = '';
-  Object.entries(CUR_CATALOG).forEach(([k, v]) => { if (r && r.rate && Number(r.rate) === v.cur) preselect = k; });
+
+  // Snapshot current per-row state so Cancel/X/scrim can restore
+  state._drawerSnapshot = {
+    cur: state.curByRow[rowId] || null,
+    overrides: state.resourceOverrides[rowId] ? {...state.resourceOverrides[rowId]} : null
+  };
+
+  // Restore saved CUR for this row; fall back to a rough match by row.rate
+  let preselect = state.curByRow[rowId] || '';
+  if (!preselect) {
+    Object.entries(CUR_CATALOG).forEach(([k, v]) => {
+      if (r && r.rate && Number(r.rate) === v.cur) preselect = k;
+    });
+  }
   $('cur_select').value = preselect;
   renderCurDetails(preselect);
   $('curDrawer').classList.add('show');
   $('curDrawerScrim').classList.add('show');
+}
+
+/* Close + revert (Cancel / X / scrim click) */
+function closeDrawer() {
+  const rowId = state._activeRowId;
+  const snap = state._drawerSnapshot;
+  if (rowId && snap) {
+    if (snap.cur == null) delete state.curByRow[rowId];
+    else state.curByRow[rowId] = snap.cur;
+    if (snap.overrides == null) delete state.resourceOverrides[rowId];
+    else state.resourceOverrides[rowId] = {...snap.overrides};
+  }
+  state._drawerSnapshot = null;
+  state._activeRowId = null;
+  $('curDrawer').classList.remove('show');
+  $('curDrawerScrim').classList.remove('show');
+}
+
+/* Save = commit (don't restore) */
+function saveDrawer() {
+  state._drawerSnapshot = null;
+  state._activeRowId = null;
+  $('curDrawer').classList.remove('show');
+  $('curDrawerScrim').classList.remove('show');
+  toast('Resources saved', 'success');
+}
+
+function onCurSelect() {
+  const k = $('cur_select').value;
+  const rowId = state._activeRowId;
+  if (k === 'K-NEW') {
+    toast('Create new CUR — opens Knowledge Library (prototype)');
+    $('cur_select').value = state.curByRow[rowId] || '';
+    return;
+  }
+  if (rowId) {
+    if (state.curByRow[rowId] !== k) delete state.resourceOverrides[rowId];
+    if (k) state.curByRow[rowId] = k;
+    else delete state.curByRow[rowId];
+  }
+  renderCurDetails(k);
+}
+
+function renderCurDetails(k) {
+  const entry = CUR_CATALOG[k];
+  if (!entry) {
+    $('cur_summary').style.display = 'none';
+    $('cur_resources_tbl').style.display = 'none';
+    $('cur_resources_empty').style.display = 'block';
+    return;
+  }
+  $('cur_summary').style.display = 'flex';
+  $('cur_value').textContent = '$' + entry.cur.toFixed(2);
+  $('cur_daily').textContent = entry.daily + ' m³/day';
+  $('cur_soil').textContent = entry.soil;
+  $('cur_resources_tbl').style.display = 'table';
+  $('cur_resources_empty').style.display = 'none';
+
+  const rowId = state._activeRowId;
+  const overrides = (rowId && state.resourceOverrides[rowId]) || {};
+
+  $('cur_resources_body').innerHTML = entry.resources.map(x => {
+    const rate = overrides[x.res] != null ? overrides[x.res] : x.rate;
+    return `
+    <tr>
+      <td>${x.res}</td>
+      <td>${x.type}</td>
+      <td class="num">${x.units}</td>
+      <td class="num"><input class="cell-input res-rate" data-res="${x.res.replace(/"/g, '&quot;')}" type="number" step="0.01" value="${rate}" style="width:80px; border:1px solid var(--neutral-200); background:var(--white)" /> <span style="color:var(--neutral-500); font-size:11px">/h</span></td>
+    </tr>
+  `;
+  }).join('');
 }
 
 function closeDrawer() {
@@ -1308,6 +1396,18 @@ document.addEventListener('DOMContentLoaded', () => {
   $('btnRunSim').addEventListener('click', () => openModal('runSimModal'));
   $('btnImport').addEventListener('click', openImportConfirm);
   $('btnDisplay').addEventListener('click', () => openModal('displayModal'));
+
+  // Resources drawer — save rate edits to per-row overrides on change
+  $('cur_resources_body').addEventListener('change', (e) => {
+    if (!e.target.matches('.res-rate')) return;
+    const rowId = state._activeRowId;
+    if (!rowId) return;
+    const resName = e.target.dataset.res;
+    const newRate = Number(e.target.value);
+    if (!state.resourceOverrides[rowId]) state.resourceOverrides[rowId] = {};
+    state.resourceOverrides[rowId][resName] = Number.isFinite(newRate) ? newRate : 0;
+  });
+  
   $('btnExport').addEventListener('click', () => toast('Export started (prototype)'));
   $('btnAcquire').addEventListener('click', () => {
     if (!state.imported || state.acquired) return;
