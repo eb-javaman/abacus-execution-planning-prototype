@@ -100,11 +100,11 @@
 
   /* ---------- Toolbar ---------- */
   .toolbar {
-    background:var(--white); padding:12px 24px; border-bottom:1px solid var(--neutral-200);
+    background:var(--white); padding:8px 16px; border-bottom:1px solid var(--neutral-200);
     display:flex; align-items:center; gap:12px; flex-wrap:wrap;
   }
   .toolbar .total {
-    font-size:12px; color:var(--neutral-600); padding-right:12px; border-right:1px solid var(--neutral-200);
+    font-size:12px; color:var(--neutral-600); padding-right:12px;
   }
   .toolbar .total strong { color:var(--neutral-900); font-size:14px; margin-left:4px; }
   .toolbar .spacer { flex:1; }
@@ -147,7 +147,11 @@
   /* ---------- Table ---------- */
   .table-wrap {
     background:var(--white); border:1px solid var(--neutral-200); border-radius:8px;
-    margin-top:16px; overflow-x:auto; overflow-y:visible;
+    margin-top:12px; overflow:hidden;
+    display:flex; flex-direction:column;
+  }
+  .table-scroll {
+    overflow-x:auto; overflow-y:visible;
   }
   table.ep {
     min-width:100%; border-collapse:collapse; font-size:12px;
@@ -277,7 +281,7 @@
 
   /* ---------- Toast ---------- */
   .toast {
-    position:fixed; bottom:24px; right:24px; left:auto;
+    position:fixed; bottom:64px; right:24px; left:auto;
     background:var(--white); border:1.5px solid var(--neutral-300);
     border-radius:8px; padding:12px 14px 12px 12px;
     display:none; align-items:flex-start; gap:10px;
@@ -406,14 +410,12 @@
 
   /* ---------- Sticky table footer ---------- */
   .table-footer {
-    position:fixed; bottom:0; left:0; right:0;
-    background:var(--white); border-top:1px solid var(--neutral-200);
-    padding:10px 24px; display:flex; justify-content:space-between; align-items:center;
-    box-shadow:0 -4px 12px rgba(0,0,0,.04); z-index:50; gap:12px;
+    background:var(--neutral-50); border-top:1px solid var(--neutral-200);
+    padding:10px 16px; display:flex; justify-content:space-between; align-items:center;
+    gap:12px;
   }
   .footer-left, .footer-right { display:flex; gap:8px; align-items:center; }
   .footer-hint { font-size:11px; color:var(--neutral-500); margin-left:4px; }
-  main { padding-bottom:90px; }
 
   /* Selected row style */
   table.ep tbody tr.selected > td { background:var(--indigo-50); }
@@ -516,32 +518,6 @@
   </div>
 </div>
 
-<!-- ========== TOOLBAR ========== -->
-<div class="toolbar">
-  <div class="total">Estimated Total Amount: <strong id="totalAmt">$0</strong></div>
-
-  <div class="spacer"></div>
-
-  <div class="sim-sync" title="Simulation lives outside Abacus. Run Simulation sends data outbound; Import pulls the result back in.">
-    <button id="btnRunSim" class="btn sim-btn" disabled>Run Simulation</button>
-    <svg class="sim-sync-arrow" viewBox="0 0 22 14" fill="none" aria-hidden="true">
-      <path d="M3 4h14M14 1l3 3-3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M19 10H5M8 13l-3-3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    <button id="btnImport" class="btn sim-btn" disabled>Import Latest Simulation Plan</button>
-  </div>
-
-  <button id="btnExport" class="btn export-btn" title="Export">
-    <svg class="ic" viewBox="0 0 20 20" fill="none"><path d="M10 13V3M10 3l-4 4M10 3l4 4M4 14v2a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    <span>export</span>
-  </button>
-
-  <button id="btnDisplay" class="btn ghost-icon" title="Display Settings">
-    <svg class="ic" viewBox="0 0 20 20" fill="none"><path d="M10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="1.5"/><path d="M16 10c0 .4-.04.78-.1 1.16l1.86 1.46-1.8 3.12-2.2-.88c-.6.46-1.27.82-2 1.06L11.4 18h-2.8l-.36-2.08a6.5 6.5 0 0 1-2-1.06l-2.2.88-1.8-3.12 1.86-1.46A6.6 6.6 0 0 1 4 10c0-.4.04-.78.1-1.16L2.24 7.38l1.8-3.12 2.2.88c.6-.46 1.27-.82 2-1.06L8.6 2h2.8l.36 2.08a6.5 6.5 0 0 1 2 1.06l2.2-.88 1.8 3.12-1.86 1.46c.06.38.1.76.1 1.16Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
-    <span>Display Setting</span>
-  </button>
-</div>
-
 <!-- ========== MAIN ========== -->
 <main>
   <!-- Empty state (no plan yet) -->
@@ -551,58 +527,88 @@
     <button class="btn primary" onclick="openModal('createPlanModal')">Create Plan</button>
   </div>
 
-  <!-- Table -->
+  <!-- Table card (toolbar + table + footer wrapped together) -->
   <div id="tableWrap" class="table-wrap" style="display:none">
-    <table class="ep">
-      <thead>
-        <tr>
-          <th style="width:32px"></th>
-          <th class="col-wbs">WBS Code</th>
-          <th class="col-acct">Accounting Code</th>
-          <th>Task (Lv1)<span class="req">*</span></th>
-          <th>Task (Lv2)</th>
-          <th>Task (Lv3)</th>
-          <th>Task (Lv4)</th>
-          <th class="col-sccat">SC Category</th>
-          <th>Area</th>
-          <th>Block</th>
-          <th>Soil Type<span class="req">*</span></th>
-          <th>Quantity / Volume</th>
-          <th>Unit</th>
-          <th class="col-cdays">Construction Days</th>
-          <th class="col-dout">Daily Output</th>
-          <th class="col-start">Start Date</th>
-          <th class="col-end">End Date</th>
-          <th>Unit Rate</th>
-          <th>Amount</th>
-          <th class="col-memo">Memo</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
+
+    <!-- Toolbar (top of card) -->
+    <div class="toolbar">
+      <div class="total">Estimated Total Amount: <strong id="totalAmt">$0</strong></div>
+
+      <div class="spacer"></div>
+
+      <div class="sim-sync" title="Simulation lives outside Abacus. Run Simulation sends data outbound; Import pulls the result back in.">
+        <button id="btnRunSim" class="btn sim-btn" disabled>Run Simulation</button>
+        <svg class="sim-sync-arrow" viewBox="0 0 22 14" fill="none" aria-hidden="true">
+          <path d="M3 4h14M14 1l3 3-3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M19 10H5M8 13l-3-3 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <button id="btnImport" class="btn sim-btn" disabled>Import Latest Simulation Plan</button>
+      </div>
+
+      <button id="btnExport" class="btn export-btn" title="Export">
+        <svg class="ic" viewBox="0 0 20 20" fill="none"><path d="M10 13V3M10 3l-4 4M10 3l4 4M4 14v2a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>export</span>
+      </button>
+
+      <button id="btnDisplay" class="btn ghost-icon" title="Display Settings">
+        <svg class="ic" viewBox="0 0 20 20" fill="none"><path d="M10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="1.5"/><path d="M16 10c0 .4-.04.78-.1 1.16l1.86 1.46-1.8 3.12-2.2-.88c-.6.46-1.27.82-2 1.06L11.4 18h-2.8l-.36-2.08a6.5 6.5 0 0 1-2-1.06l-2.2.88-1.8-3.12 1.86-1.46A6.6 6.6 0 0 1 4 10c0-.4.04-.78.1-1.16L2.24 7.38l1.8-3.12 2.2.88c.6-.46 1.27-.82 2-1.06L8.6 2h2.8l.36 2.08a6.5 6.5 0 0 1 2 1.06l2.2-.88 1.8 3.12-1.86 1.46c.06.38.1.76.1 1.16Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        <span>Display Setting</span>
+      </button>
+    </div>
+
+    <!-- Horizontal scroll container for the table only -->
+    <div class="table-scroll">
+      <table class="ep">
+        <thead>
+          <tr>
+            <th style="width:32px"></th>
+            <th class="col-wbs">WBS Code</th>
+            <th class="col-acct">Accounting Code</th>
+            <th>Task (Lv1)<span class="req">*</span></th>
+            <th>Task (Lv2)</th>
+            <th>Task (Lv3)</th>
+            <th>Task (Lv4)</th>
+            <th class="col-sccat">SC Category</th>
+            <th>Area</th>
+            <th>Block</th>
+            <th>Soil Type<span class="req">*</span></th>
+            <th>Quantity / Volume</th>
+            <th>Unit</th>
+            <th class="col-cdays">Construction Days</th>
+            <th class="col-dout">Daily Output</th>
+            <th class="col-start">Start Date</th>
+            <th class="col-end">End Date</th>
+            <th>Unit Rate</th>
+            <th>Amount</th>
+            <th class="col-memo">Memo</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- Footer (bottom of card) -->
+    <div id="tableFooter" class="table-footer">
+      <div class="footer-left">
+        <button id="btnAddRow" class="btn ghost-icon">
+          <svg class="ic" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <span>add row</span>
+        </button>
+        <button id="btnDeleteRow" class="btn ghost-icon" disabled>
+          <svg class="ic" viewBox="0 0 20 20" fill="none"><path d="M5 6h10M8 6V4h4v2M6 6l1 10h6l1-10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>delete row</span>
+        </button>
+        <span id="selectionHint" class="footer-hint"></span>
+      </div>
+      <div class="footer-right">
+        <button id="btnEdit" class="btn">Edit</button>
+        <button id="btnCancel" class="btn" style="display:none">Cancel</button>
+        <button id="btnSave" class="btn primary" style="display:none">Save</button>
+      </div>
+    </div>
   </div>
 </main>
-
-<!-- ========== TABLE FOOTER (sticky) ========== -->
-<div id="tableFooter" class="table-footer" style="display:none">
-  <div class="footer-left">
-    <button id="btnAddRow" class="btn ghost-icon">
-      <svg class="ic" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-      <span>add row</span>
-    </button>
-    <button id="btnDeleteRow" class="btn ghost-icon" disabled>
-      <svg class="ic" viewBox="0 0 20 20" fill="none"><path d="M5 6h10M8 6V4h4v2M6 6l1 10h6l1-10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span>delete row</span>
-    </button>
-    <span id="selectionHint" class="footer-hint"></span>
-  </div>
-  <div class="footer-right">
-    <button id="btnEdit" class="btn">Edit</button>
-    <button id="btnCancel" class="btn" style="display:none">Cancel</button>
-    <button id="btnSave" class="btn primary" style="display:none">Save</button>
-  </div>
-</div>
 
 <!-- ========== MODAL: Create Plan ========== -->
 <div id="createPlanModal" class="scrim">
