@@ -101,6 +101,7 @@
   /* ---------- Toolbar ---------- */
   .toolbar {
     background:var(--white); padding:8px 16px; border-bottom:1px solid var(--neutral-200);
+    border-radius:7px 7px 0 0;
     display:flex; align-items:center; gap:12px; flex-wrap:wrap;
   }
   .toolbar .total {
@@ -147,7 +148,7 @@
   /* ---------- Table ---------- */
   .table-wrap {
     background:var(--white); border:1px solid var(--neutral-200); border-radius:8px;
-    margin-top:12px; overflow:hidden;
+    margin-top:12px; overflow:visible; /* visible so tooltips can escape; horizontal scroll handled by .table-scroll */
     display:flex; flex-direction:column;
   }
   .table-scroll {
@@ -408,9 +409,105 @@
   }
   .drawer-note strong { color:var(--indigo-700); }
 
+  /* ---------- Details drawer form ---------- */
+  .details-form { display:flex; flex-direction:column; gap:14px; }
+  .dform-row { display:flex; flex-direction:column; gap:6px; }
+  .dform-row > label, .dform-label-row label {
+    font-size:14px; font-weight:700; color:var(--neutral-900);
+  }
+  .dform-label-row {
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+  }
+  .dform-method {
+    padding:4px 10px; border:1px solid var(--neutral-300); border-radius:4px;
+    font-size:12px; color:var(--neutral-600); background:var(--white);
+    cursor:not-allowed; font-family:inherit;
+  }
+  .dform-display {
+    padding:10px 12px; background:var(--neutral-50); border:1px solid var(--neutral-100);
+    border-radius:4px; font-size:14px; color:var(--neutral-800);
+    min-height:40px; display:flex; align-items:center;
+  }
+  .dform-display.sim-locked { color:var(--neutral-700); }
+  .dform-input {
+    width:100%; padding:10px 12px; background:var(--white);
+    border:1px solid var(--indigo-400); border-radius:4px;
+    font-size:14px; color:var(--neutral-900); outline:none; font-family:inherit;
+  }
+  .dform-input:focus { border-color:var(--indigo-500); box-shadow:0 0 0 3px var(--indigo-50); }
+
+  /* ---------- Knowledge button (in Unit Rate cell) ---------- */
+  .rate-cell { display:flex; align-items:center; gap:6px; justify-content:space-between; }
+  .rate-cell .rate-value { flex:1; min-width:0; }
+  .knowledge-btn {
+    color:var(--indigo-500);
+    border: var(--indigo-500) solid 1px;
+    border-radius:4px;
+    width:24px; height:24px; padding:0; flex-shrink:0;
+    cursor:pointer;
+    display:inline-flex; align-items:center; justify-content:center;
+  }
+  .knowledge-btn:hover { background:var(--indigo-200); }
+  .knowledge-btn svg { width:16px; height:16px; }
+
+  /* ---------- CUR Search drawer ---------- */
+  .cur-search-wrap { position:relative; margin-bottom:14px; }
+  .cur-search-wrap input {
+    width:100%; height:36px; padding:0 32px 0 12px;
+    border:1px solid var(--neutral-300); border-radius:6px;
+    font-size:13px; background:var(--white); outline:none;
+    font-family:inherit;
+  }
+  .cur-search-wrap input:focus { border-color:var(--indigo-400); }
+  .cur-search-wrap .cur-search-icon {
+    position:absolute; right:10px; top:50%; transform:translateY(-50%);
+    width:16px; height:16px; color:var(--neutral-500); pointer-events:none;
+  }
+  .cur-filter-row {
+    display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap;
+  }
+  .cur-filter-label { font-size:13px; color:var(--neutral-800); font-weight:500; }
+  .cur-filter-chip {
+    padding:4px 12px; background:var(--indigo-50); border:1px solid var(--indigo-100);
+    border-radius:14px; font-size:12px; color:var(--indigo-700); cursor:pointer;
+    font-weight:600;
+  }
+  .cur-filter-chip:hover { background:var(--indigo-100); }
+  .cur-filter-chip.active { background:var(--indigo-500); color:var(--white); border-color:var(--indigo-500); }
+  .cur-related-row {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:8px 12px; background:var(--neutral-50);
+    border:1px solid var(--neutral-200); border-radius:6px;
+    margin-bottom:8px;
+  }
+  .cur-related-row > span { font-size:13px; color:var(--neutral-700); }
+  .cur-package-list { display:flex; flex-direction:column; gap:8px; }
+  .cur-package-card {
+    background:var(--white); border:1px solid var(--neutral-200);
+    border-radius:6px; padding:10px 12px;
+  }
+  .cur-pkg-row {
+    display:flex; align-items:center; gap:10px;
+  }
+  .cur-pkg-name {
+    padding:3px 8px; background:var(--neutral-50); border:1px solid var(--neutral-300);
+    border-radius:4px; font-size:12px; color:var(--neutral-800); font-weight:500;
+    white-space:nowrap;
+  }
+  .cur-pkg-price { color:var(--indigo-500); font-weight:700; font-size:15px; flex:1; }
+  .cur-pkg-actions { display:flex; gap:6px; flex-shrink:0; }
+  .cur-pkg-meta { margin-top:6px; padding-left:2px; }
+  .cur-pkg-daily { font-weight:700; color:var(--neutral-900); font-size:13px; }
+  .cur-pkg-comp { font-size:11px; color:var(--neutral-600); margin-top:2px; }
+  .cur-empty {
+    text-align:center; padding:24px 16px; color:var(--neutral-500); font-size:12px;
+    border:1px dashed var(--neutral-300); border-radius:6px;
+  }
+
   /* ---------- Sticky table footer ---------- */
   .table-footer {
     background:var(--neutral-50); border-top:1px solid var(--neutral-200);
+    border-radius:0 0 7px 7px;
     padding:10px 16px; display:flex; justify-content:space-between; align-items:center;
     gap:12px;
   }
@@ -420,6 +517,72 @@
   /* Selected row style */
   table.ep tbody tr.selected > td { background:var(--indigo-50); }
   table.ep tbody tr.selected.expanded > td { background:var(--indigo-100); }
+
+  /* ---------- Frozen columns (sticky during horizontal scroll) ----------
+     Left-frozen: Task Lv1–Lv4
+     Right-frozen: Amount, Actions */
+  table.ep .col-lv1, table.ep .col-lv2, table.ep .col-lv3, table.ep .col-lv4,
+  table.ep .col-amount, table.ep .col-actions {
+    position:sticky; z-index:2; background:var(--white);
+  }
+  table.ep thead .col-lv1, table.ep thead .col-lv2, table.ep thead .col-lv3, table.ep thead .col-lv4,
+  table.ep thead .col-amount, table.ep thead .col-actions {
+    z-index:3; background:var(--neutral-50);
+  }
+  /* Fixed widths so sticky offsets line up */
+  table.ep .col-lv1 { left:0;     min-width:140px; max-width:140px; }
+  table.ep .col-lv2 { left:140px; min-width:120px; max-width:120px; }
+  table.ep .col-lv3 { left:260px; min-width:150px; max-width:150px; }
+  table.ep .col-lv4 { left:410px; min-width:120px; max-width:120px; }
+  table.ep .col-amount  { right:100px; min-width:110px; max-width:110px; }
+  table.ep .col-actions { right:0;     min-width:100px; max-width:100px; }
+  /* Separators at the freeze boundaries — gradient pseudo-elements gated on persistent scroll state.
+     .is-scrolled-left  — scrollLeft > 0 (content scrolled past the left edge)
+     .is-scrolled-right — scrollLeft + clientWidth < scrollWidth (more content to the right)
+     Pseudo-elements are used (not box-shadow) because shadows on cells in border-collapse tables
+     are clipped by adjacent cell backgrounds. */
+  table.ep .col-lv4::after,
+  table.ep .col-amount::before {
+    content:''; position:absolute; top:0; bottom:0; width:10px;
+    pointer-events:none; opacity:0;
+    transition:opacity .15s ease;
+    z-index:4;
+  }
+  table.ep .col-lv4::after  {
+    right:-10px;
+    background:linear-gradient(to right, rgba(0,0,0,0.10), rgba(0,0,0,0));
+  }
+  table.ep .col-amount::before {
+    left:-10px;
+    background:linear-gradient(to left,  rgba(0,0,0,0.10), rgba(0,0,0,0));
+  }
+  .table-scroll.is-scrolled-left  table.ep .col-lv4::after  { opacity:1; }
+  .table-scroll.is-scrolled-right table.ep .col-amount::before { opacity:1; }
+  /* Row-state backgrounds for sticky body cells (must paint per-cell since sticky sits above tr bg) */
+  table.ep tbody tr.row-alt > td.col-lv1,
+  table.ep tbody tr.row-alt > td.col-lv2,
+  table.ep tbody tr.row-alt > td.col-lv3,
+  table.ep tbody tr.row-alt > td.col-lv4,
+  table.ep tbody tr.row-alt > td.col-amount,
+  table.ep tbody tr.row-alt > td.col-actions { background:var(--neutral-50); }
+  table.ep tbody tr:hover > td.col-lv1,
+  table.ep tbody tr:hover > td.col-lv2,
+  table.ep tbody tr:hover > td.col-lv3,
+  table.ep tbody tr:hover > td.col-lv4,
+  table.ep tbody tr:hover > td.col-amount,
+  table.ep tbody tr:hover > td.col-actions { background:var(--neutral-50); }
+  table.ep tbody tr.expanded > td.col-lv1,
+  table.ep tbody tr.expanded > td.col-lv2,
+  table.ep tbody tr.expanded > td.col-lv3,
+  table.ep tbody tr.expanded > td.col-lv4,
+  table.ep tbody tr.expanded > td.col-amount,
+  table.ep tbody tr.expanded > td.col-actions { background:var(--indigo-50); }
+  table.ep tbody tr.selected > td.col-lv1,
+  table.ep tbody tr.selected > td.col-lv2,
+  table.ep tbody tr.selected > td.col-lv3,
+  table.ep tbody tr.selected > td.col-lv4,
+  table.ep tbody tr.selected > td.col-amount,
+  table.ep tbody tr.selected > td.col-actions { background:var(--indigo-50); }
 
   /* Area / Block columns are always visible — empty pre-import, filled post-import */
 
@@ -564,10 +727,10 @@
             <th style="width:32px"></th>
             <th class="col-wbs">WBS Code</th>
             <th class="col-acct">Accounting Code</th>
-            <th>Task (Lv1)<span class="req">*</span></th>
-            <th>Task (Lv2)</th>
-            <th>Task (Lv3)</th>
-            <th>Task (Lv4)</th>
+            <th class="col-lv1">Task (Lv1)<span class="req">*</span></th>
+            <th class="col-lv2">Task (Lv2)</th>
+            <th class="col-lv3">Task (Lv3)</th>
+            <th class="col-lv4">Task (Lv4)</th>
             <th class="col-sccat">SC Category</th>
             <th>Area</th>
             <th>Block</th>
@@ -579,9 +742,9 @@
             <th class="col-start">Start Date</th>
             <th class="col-end">End Date</th>
             <th>Unit Rate</th>
-            <th>Amount</th>
+            <th class="col-amount">Amount</th>
             <th class="col-memo">Memo</th>
-            <th>Actions</th>
+            <th class="col-actions">Actions</th>
           </tr>
         </thead>
         <tbody id="tbody"></tbody>
@@ -710,57 +873,54 @@
   </div>
 </div>
 
-<!-- ========== DRAWER: Resources ========== -->
-<div id="curDrawerScrim" class="drawer-scrim" onclick="closeDrawer()"></div>
-<aside id="curDrawer" class="drawer">
+<!-- ========== DRAWER: CUR Search (from Knowledge) ========== -->
+<div id="curSearchDrawerScrim" class="drawer-scrim" onclick="closeCurSearchDrawer()"></div>
+<aside id="curSearchDrawer" class="drawer">
   <div class="drawer-header">
     <div>
-      <div class="drawer-title">Resources</div>
-      <div id="cur_subtitle" class="drawer-subtitle">—</div>
+      <div class="drawer-title">Search Construction Unit Rate</div>
+      <div class="drawer-subtitle">synced from Knowledge Database</div>
     </div>
-    <button class="close-x" onclick="closeDrawer()">×</button>
+    <button class="close-x" onclick="closeCurSearchDrawer()">×</button>
   </div>
 
   <div class="drawer-body">
-    <div class="field">
-      <label>Construction Unit Rate</label>
-      <select id="cur_select" onchange="onCurSelect()">
-        <option value="">— Select a Construction Unit Rate —</option>
-        <option value="K-001">K-001 · Earthwork Fill — Sandy Soil · $1.32 / m³</option>
-        <option value="K-002">K-002 · Earthwork Fill — Gravel Soil · $0.57 / m³</option>
-        <option value="K-003">K-003 · Earthwork Fill — Clay Soil · $0.57 / m³</option>
-        <option value="K-004">K-004 · Earthwork Cut — Soft Rock · $2.10 / m³</option>
-        <option value="K-005">K-005 · Earthwork Cut — Hard Rock · $3.85 / m³</option>
-        <option value="K-NEW">+ Create new Construction Unit Rate…</option>
-      </select>
-      <div class="hint">Pulled from the Knowledge Library. A Construction Unit Rate carries its own resource composition; selecting one inherits the resources below.</div>
+    <div class="cur-search-wrap">
+      <input id="cur_search_input" placeholder="Search" oninput="renderCurPackages()" />
+      <svg class="cur-search-icon" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="5" stroke="currentColor" stroke-width="1.6"/><path d="m13 13 3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
     </div>
 
-    <div id="cur_summary" class="cur-summary" style="display:none">
-      <div class="chip">CUR <strong id="cur_value">—</strong></div>
-      <div class="chip">Daily Output <strong id="cur_daily">—</strong></div>
-      <div class="chip">Soil <strong id="cur_soil">—</strong></div>
+    <div class="cur-filter-row">
+      <span class="cur-filter-label">Search Filter:</span>
+      <div id="cur_filter_chips" style="display:contents"></div>
     </div>
 
-    <div class="section-title">Resources inherited from this Construction Unit Rate</div>
-    <table class="sc" id="cur_resources_tbl" style="width:100%; display:none">
-      <thead><tr>
-        <th>Resource</th><th>Type</th>
-        <th style="text-align:right">No. Units</th>
-        <th style="text-align:right">Rate ($/h)</th>
-      </tr></thead>
-      <tbody id="cur_resources_body"></tbody>
-    </table>
-    <div id="cur_resources_empty" class="empty-nested">Select a Construction Unit Rate above to view its resources.</div>
-
-    <div class="drawer-note">
-      <strong>Prices are editable per task.</strong> Resource composition and units are inherited from the selected Construction Unit Rate. To change quantity or composition, edit the parent task or update the Construction Unit Rate in Knowledge, then re-run Simulation.
+    <div class="cur-related-row">
+      <span>Related Sites</span>
+      <button class="btn btn-sm" onclick="toast('Create New Unit Rate — opens Knowledge editor (prototype)')">Create New Unit Rate</button>
     </div>
+
+    <div id="cur_package_list" class="cur-package-list"></div>
+  </div>
+</aside>
+
+<!-- ========== DRAWER: Details (Construction Unit Rate – Task) ========== -->
+<div id="curDrawerScrim" class="drawer-scrim" onclick="closeDetailsDrawer()"></div>
+<aside id="curDrawer" class="drawer">
+  <div class="drawer-header">
+    <div>
+      <div class="drawer-title" id="details_title">Construction Unit Rate – Task</div>
+    </div>
+    <button class="close-x" onclick="closeDetailsDrawer()">×</button>
   </div>
 
-  <div class="drawer-footer">
-    <button class="btn" onclick="closeDrawer()">Cancel</button>
-    <button class="btn primary" onclick="saveDrawer()">Save</button>
+  <div class="drawer-body">
+    <div id="details_form" class="details-form"></div>
+  </div>
+
+  <div class="drawer-footer" style="justify-content:center; gap:10px">
+    <button id="details_edit_btn" class="btn" onclick="toggleDetailsEdit()">Edit</button>
+    <button id="details_save_btn" class="btn primary" onclick="saveDetails()">Save</button>
   </div>
 </aside>
 
@@ -884,7 +1044,7 @@ const state = {
 
 /* Post-import: split by Area + Block (per the spec example) */
 const ROWS_POST = [
-  { id:'r1a', wbs:'1.1.1', acct:'A-101', lv1:'Earthwork (Fill)', lv2:'Fill', lv3:'Roadbed Fill', lv4:'Soil',
+  { id:'r1a', wbs:'10', wbs2:'201', acct:'A-101', lv1:'Earthwork (Fill)', lv2:'Fill', lv3:'Roadbed Fill', lv4:'Soil',
     scCat:'土工事/盛土', area:'Area A', block:'Block A1', soil:'Sandy Soil', qty:3000, unit:'m³',
     cdays:5, dout:600, startDate:'07/01/2026', endDate:'07/05/2026', rate:1.32, amount:3960, memo:'',
     sc:{ dailyOutput:600, cur:1.32, tasks:[
@@ -893,7 +1053,7 @@ const ROWS_POST = [
       { name:'Compaction', start:'8:00', end:'17:00', eq:'Vibratory Roller 10t × 1', rate:253, total:1902 },
     ]}
   },
-  { id:'r1b', wbs:'1.1.2', acct:'A-101', lv1:'Earthwork (Fill)', lv2:'Fill', lv3:'Roadbed Fill', lv4:'Soil',
+  { id:'r1b', wbs:'10', wbs2:'202', acct:'A-101', lv1:'Earthwork (Fill)', lv2:'Fill', lv3:'Roadbed Fill', lv4:'Soil',
     scCat:'土工事/盛土', area:'Area A', block:'Block A2', soil:'Gravel Soil', qty:6000, unit:'m³',
     cdays:9, dout:720, startDate:'07/06/2026', endDate:'07/16/2026', rate:0.57, amount:3420, memo:'',
     sc:{ dailyOutput:720, cur:0.57, tasks:[
@@ -902,7 +1062,7 @@ const ROWS_POST = [
       { name:'Compaction', start:'8:00', end:'17:00', eq:'Vibratory Roller 10t × 1', rate:253, total:2107 },
     ]}
   },
-  { id:'r1c', wbs:'1.2.1', acct:'A-102', lv1:'Earthwork (Fill)', lv2:'Fill', lv3:'Roadbed Fill', lv4:'Soil',
+  { id:'r1c', wbs:'10', wbs2:'301', acct:'A-102', lv1:'Earthwork (Fill)', lv2:'Fill', lv3:'Roadbed Fill', lv4:'Soil',
     scCat:'土工事/盛土', area:'Area B', block:'Block B1', soil:'Clay Soil', qty:800, unit:'m³',
     cdays:2, dout:560, startDate:'07/17/2026', endDate:'07/20/2026', rate:0.57, amount:456, memo:'',
     sc:{ dailyOutput:560, cur:0.57, tasks:[
@@ -961,7 +1121,42 @@ function openModal(id){ $(id).classList.add('show'); }
 function closeModal(id){ $(id).classList.remove('show'); }
 
 // Toast close
-$('t-close').addEventListener('click', hideToast);  
+$('t-close').addEventListener('click', hideToast);
+
+/* Persistent scroll-state classes on .table-scroll.
+   - is-scrolled-left:  scrollLeft > 0
+   - is-scrolled-right: scrollLeft + clientWidth < scrollWidth
+   These classes drive the freeze-boundary shadow and are updated on scroll, resize, and initial render. */
+function updateFreezeShadows() {
+  const el = document.querySelector('.table-scroll');
+  if (!el) return;
+  // No layout yet (parent hidden) → clear classes
+  if (el.clientWidth === 0 || el.scrollWidth === 0) {
+    el.classList.remove('is-scrolled-left');
+    el.classList.remove('is-scrolled-right');
+    return;
+  }
+  const isScrolledLeft  = el.scrollLeft > 0;
+  const isScrolledRight = (el.scrollLeft + el.clientWidth) < (el.scrollWidth - 1);
+  el.classList.toggle('is-scrolled-left',  isScrolledLeft);
+  el.classList.toggle('is-scrolled-right', isScrolledRight);
+}
+
+window.addEventListener('resize', updateFreezeShadows);
+
+document.addEventListener('DOMContentLoaded', () => {
+  const ts = document.querySelector('.table-scroll');
+  if (!ts) return;
+  ts.addEventListener('scroll', updateFreezeShadows, { passive:true });
+  // ResizeObserver catches column-visibility toggles, plan-becomes-visible, window changes
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(() => updateFreezeShadows());
+    ro.observe(ts);
+    const tbl = ts.querySelector('table.ep');
+    if (tbl) ro.observe(tbl);
+  }
+  updateFreezeShadows();
+});
 
 /* ============================================================
    Render
@@ -1062,10 +1257,10 @@ function render() {
       </td>
       <td class="col-wbs">${cellInput(r.id,'wbs', r.wbs, {placeholder:'—'})}</td>
       <td class="col-acct">${cellInput(r.id,'acct', r.acct, {placeholder:'—'})}</td>
-      <td>${cellInput(r.id,'lv1', r.lv1, {placeholder:'e.g. Earthwork (Fill)', listId:'dl_lv1'})}</td>
-      <td>${cellInput(r.id,'lv2', r.lv2, {placeholder:'e.g. Fill', listId:'dl_lv2'})}</td>
-      <td>${cellInput(r.id,'lv3', r.lv3, {placeholder:'e.g. Roadbed Fill', listId:'dl_lv3'})}</td>
-      <td>${cellInput(r.id,'lv4', r.lv4, {placeholder:'e.g. Soil', listId:'dl_lv4'})}</td>
+      <td class="col-lv1">${cellInput(r.id,'lv1', r.lv1, {placeholder:'e.g. Earthwork (Fill)', listId:'dl_lv1'})}</td>
+      <td class="col-lv2">${cellInput(r.id,'lv2', r.lv2, {placeholder:'e.g. Fill', listId:'dl_lv2'})}</td>
+      <td class="col-lv3">${cellInput(r.id,'lv3', r.lv3, {placeholder:'e.g. Roadbed Fill', listId:'dl_lv3'})}</td>
+      <td class="col-lv4">${cellInput(r.id,'lv4', r.lv4, {placeholder:'e.g. Soil', listId:'dl_lv4'})}</td>
       <td class="locked col-sccat">${r.scCat || '—'}</td>
       <td class="locked">${r.area || '—'}</td>
       <td class="locked">${r.block || '—'}</td>
@@ -1076,11 +1271,18 @@ function render() {
       <td class="num locked col-dout">${r.dout ? r.dout + ' ' + (r.unit||'') : '—'}</td>
       <td class="locked col-start">${r.startDate || '—'}</td>
       <td class="locked col-end">${r.endDate || '—'}</td>
-      <td class="num">${cellInput(r.id,'rate', r.rate, {kind:'num', placeholder:'0.00'})}</td>
-      <td class="num"><strong>${r.amount===''||r.amount==null ? '—' : fmt$(r.amount)}</strong></td>
+      <td class="num">
+        <div class="rate-cell">
+          <span class="rate-value">${cellInput(r.id,'rate', r.rate, {kind:'num', placeholder:'0.00'})}</span>
+          <button class="knowledge-btn" onclick="event.stopPropagation(); openCurSearchDrawer('${r.id}')" title="Apply Construction Unit Rate from Knowledge">
+            <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M480-160q-132 0-226-37.5T160-290v-380q0-52 94-90t226-38q132 0 226 38t94 90v100q-19-3-37-7t-43-7v-12.5q0-30.43-58.5-55.46Q583-677 480-677t-161.5 25.04Q260-626.93 260-596.5q0 31.5 58.5 56.5T480-515h25q-3 6-3.5 12.5T501-490h-21q-86 0-159-17.5T200-561v97q0 31.5 58.5 56.5T480-382q-2 12-2 24.5t1 24.5h1q-86 0-159-17.5T200-405v95q0 30.43 58.5 55.46Q317-229.5 480-229.5q22 0 41.5-2.5T560-237q9 19 18.5 35t21.5 31q-30 5-58 8t-62 3Zm230 0v-119H591l149-141 150 141H770v119h-60Z"/></svg>
+          </button>
+        </div>
+      </td>
+      <td class="num col-amount"><strong>${r.amount===''||r.amount==null ? '—' : fmt$(r.amount)}</strong></td>
       <td class="col-memo">${cellInput(r.id,'memo', r.memo, {placeholder:'—'})}</td>
-      <td>
-        <button class="btn btn-sm" onclick="event.stopPropagation(); openCurDrawer('${r.id}')" title="Resources">Resources</button>
+      <td class="col-actions">
+        <button class="btn btn-sm" onclick="event.stopPropagation(); openDetailsDrawer('${r.id}')" title="Details">Details</button>
       </td>
     `;
     tbody.appendChild(tr);
@@ -1091,6 +1293,8 @@ function render() {
       tbody.appendChild(trN);
     }
   });
+  // Re-evaluate freeze-boundary shadow after layout changes
+  requestAnimationFrame(() => { if (typeof updateFreezeShadows === 'function') updateFreezeShadows(); });
 }
 
 /**
@@ -1176,7 +1380,7 @@ function addParentTask() {
   if (state.acquired) { toast('Planning is locked'); return; }
   const newRow = {
     id: 'r' + Date.now(),
-    wbs:'', acct:'',
+    wbs:'', wbs2:'', acct:'',
     lv1:'', lv2:'', lv3:'', lv4:'',
     scCat:'', area:'', block:'',
     soil:'', qty:'', unit:'m³',
@@ -1245,9 +1449,109 @@ function applyDisplay() {
   });
   closeModal('displayModal');
   toast('Display settings saved', 'success');
+  // Column-visibility changed → re-evaluate freeze shadows
+  requestAnimationFrame(() => { if (typeof updateFreezeShadows === 'function') updateFreezeShadows(); });
 }
 
 /* CUR catalog — would come from Knowledge Library in the live build */
+/* CUR packages — created in Abacus (not via Simulation). Used by the "Search Construction Unit Rate" drawer. */
+const CUR_PACKAGES = [
+  { id:'P-001', packageName:'Embankment - Sandy Soil',  workType:'Embankment', rate:1000, unit:'m³', daily:650, dailyLabel:'m³/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
+  { id:'P-002', packageName:'Embankment - Gravel Soil', workType:'Embankment', rate:12000, unit:'D', daily:650, dailyLabel:'m³/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
+  { id:'P-003', packageName:'Embankment - Clay Soil',   workType:'Embankment', rate:12000, unit:'D', daily:650, dailyLabel:'m³/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
+  { id:'P-004', packageName:'Excavation - Soft Rock',   workType:'Excavation', rate:8000,  unit:'D', daily:620, dailyLabel:'m³/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
+  { id:'P-005', packageName:'Excavation - Hard Rock',   workType:'Excavation', rate:1000,  unit:'D', daily:650, dailyLabel:'m³/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
+  { id:'P-006', packageName:'Roadbed Fill - Standard',  workType:'Road Works', rate:900,   unit:'D', daily:650, dailyLabel:'m³/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
+  { id:'P-007', packageName:'Roadbed Fill - Heavy',     workType:'Road Works', rate:3000,  unit:'D', daily:650, dailyLabel:'m³/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
+  { id:'P-008', packageName:'Cut & Fill Package A',     workType:'Embankment', rate:2000,  unit:'D', daily:650, dailyLabel:'m³/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
+  { id:'P-009', packageName:'Cut & Fill Package B',     workType:'Excavation', rate:1600,  unit:'D', daily:650, dailyLabel:'m³/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
+  { id:'P-010', packageName:'Slope Trimming Standard',  workType:'Road Works', rate:1300,  unit:'D', daily:650, dailyLabel:'m³/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
+];
+
+let _curSearchState = { filter: '', activeRowId: null };
+
+function openCurSearchDrawer(rowId) {
+  _curSearchState.activeRowId = rowId;
+  _curSearchState.filter = '';
+  $('cur_search_input').value = '';
+  renderCurFilters();
+  renderCurPackages();
+  $('curSearchDrawer').classList.add('show');
+  $('curSearchDrawerScrim').classList.add('show');
+}
+
+function closeCurSearchDrawer() {
+  _curSearchState.activeRowId = null;
+  $('curSearchDrawer').classList.remove('show');
+  $('curSearchDrawerScrim').classList.remove('show');
+}
+
+function renderCurFilters() {
+  const workTypes = [...new Set(CUR_PACKAGES.map(p => p.workType))];
+  $('cur_filter_chips').innerHTML = workTypes.map(wt =>
+    `<button type="button" class="cur-filter-chip ${_curSearchState.filter === wt ? 'active' : ''}" onclick="toggleCurFilter('${wt.replace(/'/g, "\\'")}')">${wt}</button>`
+  ).join('');
+}
+
+function toggleCurFilter(wt) {
+  _curSearchState.filter = _curSearchState.filter === wt ? '' : wt;
+  renderCurFilters();
+  renderCurPackages();
+}
+
+function renderCurPackages() {
+  const q = ($('cur_search_input').value || '').toLowerCase();
+  const filter = _curSearchState.filter;
+  const filtered = CUR_PACKAGES.filter(p => {
+    if (filter && p.workType !== filter) return false;
+    if (q && !(p.packageName.toLowerCase().includes(q) || p.workType.toLowerCase().includes(q))) return false;
+    return true;
+  });
+  const list = $('cur_package_list');
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="cur-empty">No matching unit rates. Adjust the filter or search term.</div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(p => `
+    <div class="cur-package-card">
+      <div class="cur-pkg-row">
+        <span class="cur-pkg-name">${p.packageName}</span>
+        <span class="cur-pkg-price">$${Number(p.rate).toLocaleString()}/${p.unit}</span>
+        <div class="cur-pkg-actions">
+          <button class="btn btn-sm primary" onclick="applyCurPackage('${p.id}')">apply</button>
+          <button class="btn btn-sm" onclick="toast('Details for ${p.packageName.replace(/'/g, "")}', 'success')">details</button>
+        </div>
+      </div>
+      <div class="cur-pkg-meta">
+        <div class="cur-pkg-daily">${p.daily}${p.dailyLabel}</div>
+        <div class="cur-pkg-comp">${p.composition}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function applyCurPackage(pkgId) {
+  const pkg = CUR_PACKAGES.find(p => p.id === pkgId);
+  const rowId = _curSearchState.activeRowId;
+  if (!pkg || !rowId) { closeCurSearchDrawer(); return; }
+  const row = state.rows.find(r => r.id === rowId);
+  if (!row) { closeCurSearchDrawer(); return; }
+  // Enter edit mode if needed so the change can be saved
+  if (!state.editMode && !state.acquired) enterEdit();
+  if (state.acquired) { closeCurSearchDrawer(); toast('Planning is locked', 'error'); return; }
+  // Per-unit rate — store as numeric. (Daily-rate packages use "D"; for prototype we still set the numeric value.)
+  row.rate = Number(pkg.rate);
+  if (row.qty !== '' && row.qty != null) {
+    row.amount = +(Number(row.qty) * Number(pkg.rate)).toFixed(2);
+  }
+  state.curByRow[row.id] = pkg.id;
+  state.dirty = true;
+  state.simNeedsRefresh = true; // resource composition may differ from previous CUR
+  closeCurSearchDrawer();
+  render();
+  toast(`Applied "${pkg.packageName}"`, 'success');
+}
+
 const CUR_CATALOG = {
   'K-001': { name:'Earthwork Fill — Sandy Soil', cur:1.32, daily:600, soil:'Sandy Soil', resources:[
     {res:'Backhoe 0.7m³', type:'Machinery', units:1, rate:27.75},
@@ -1277,105 +1581,135 @@ const CUR_CATALOG = {
   ]},
 };
 
-function openCurDrawer(rowId) {
+/* ===== Details drawer (Construction Unit Rate – [task]) ===== */
+
+/* Fields config:
+   - editable=true means the field is editable in Abacus (planning/business)
+   - editable=false means Simulation-generated or computed — never editable here  */
+const DETAIL_FIELDS = [
+  { label:'WBS Code ①',    field:'wbs',   editable:true },
+  { label:'WBS Code ②',    field:'wbs2',  editable:true },
+  { label:'Accounting Code', field:'acct', editable:true },
+  { label:'Work Type',     field:'lv1',   editable:true },
+  { label:'Category',      field:'lv2',   editable:true },
+  { label:'Specification', field:'lv3',   editable:true },
+  { label:'Standard',      field:'lv4',   editable:true },
+  { label:'Quantity',      field:'qty',   editable:true, type:'number' },
+  { label:'Unit',          field:'unit',  editable:true },
+];
+
+function openDetailsDrawer(rowId) {
   const r = state.rows.find(x => x.id === rowId);
+  if (!r) return;
   state._activeRowId = rowId;
-  $('cur_subtitle').textContent = r ? `${r.lv1 || 'Task'}${r.area ? ' · ' + r.area + ' / ' + r.block : ''}` : 'Task';
-
-  // Snapshot current per-row state so Cancel/X/scrim can restore
-  state._drawerSnapshot = {
-    cur: state.curByRow[rowId] || null,
-    overrides: state.resourceOverrides[rowId] ? {...state.resourceOverrides[rowId]} : null
-  };
-
-  // Restore saved CUR for this row; fall back to a rough match by row.rate
-  let preselect = state.curByRow[rowId] || '';
-  if (!preselect) {
-    Object.entries(CUR_CATALOG).forEach(([k, v]) => {
-      if (r && r.rate && Number(r.rate) === v.cur) preselect = k;
-    });
-  }
-  $('cur_select').value = preselect;
-  renderCurDetails(preselect);
+  state._detailsEditMode = false;
+  // Snapshot for revert on Cancel/X/scrim
+  state._drawerSnapshot = JSON.parse(JSON.stringify(r));
+  $('details_title').textContent = `Construction Unit Rate – ${r.lv1 || 'Task'}`;
+  renderDetailsForm();
   $('curDrawer').classList.add('show');
   $('curDrawerScrim').classList.add('show');
 }
 
-/* Close + revert (Cancel / X / scrim click) */
-function closeDrawer() {
-  const rowId = state._activeRowId;
-  const snap = state._drawerSnapshot;
-  if (rowId && snap) {
-    // Restore CUR selection
-    if (snap.cur == null) delete state.curByRow[rowId];
-    else state.curByRow[rowId] = snap.cur;
-    // Restore overrides
-    if (snap.overrides == null) delete state.resourceOverrides[rowId];
-    else state.resourceOverrides[rowId] = {...snap.overrides};
+function closeDetailsDrawer() {
+  // If we were editing, revert to snapshot
+  if (state._detailsEditMode && state._drawerSnapshot && state._activeRowId) {
+    const idx = state.rows.findIndex(x => x.id === state._activeRowId);
+    if (idx >= 0) state.rows[idx] = JSON.parse(JSON.stringify(state._drawerSnapshot));
   }
+  state._detailsEditMode = false;
   state._drawerSnapshot = null;
   state._activeRowId = null;
   $('curDrawer').classList.remove('show');
   $('curDrawerScrim').classList.remove('show');
+  // Re-render in case we reverted
+  render();
 }
 
-/* Save = commit (don't restore) */
-function saveDrawer() {
-  state._drawerSnapshot = null;
-  state._activeRowId = null;
-  $('curDrawer').classList.remove('show');
-  $('curDrawerScrim').classList.remove('show');
-  toast('Resources saved', 'success');
-}
-
-function onCurSelect() {
-  const k = $('cur_select').value;
-  const rowId = state._activeRowId;
-  if (k === 'K-NEW') {
-    toast('Create new CUR — opens Knowledge Library (prototype)');
-    $('cur_select').value = state.curByRow[rowId] || '';
-    return;
-  }
-  if (rowId) {
-    // Switching CUR clears stale overrides — composition may differ
-    if (state.curByRow[rowId] !== k) {
-      delete state.resourceOverrides[rowId];
+function toggleDetailsEdit() {
+  if (state.acquired) { toast('Planning is locked', 'error'); return; }
+  if (state._detailsEditMode) {
+    // currently editing → cancel: revert + back to view mode
+    if (state._drawerSnapshot && state._activeRowId) {
+      const idx = state.rows.findIndex(x => x.id === state._activeRowId);
+      if (idx >= 0) state.rows[idx] = JSON.parse(JSON.stringify(state._drawerSnapshot));
     }
-    if (k) state.curByRow[rowId] = k;
-    else delete state.curByRow[rowId];
+    state._detailsEditMode = false;
+  } else {
+    state._detailsEditMode = true;
   }
-  renderCurDetails(k);
+  renderDetailsForm();
+  $('details_edit_btn').textContent = state._detailsEditMode ? 'Cancel' : 'Edit';
 }
 
-function renderCurDetails(k) {
-  const entry = CUR_CATALOG[k];
-  if (!entry) {
-    $('cur_summary').style.display = 'none';
-    $('cur_resources_tbl').style.display = 'none';
-    $('cur_resources_empty').style.display = 'block';
-    return;
+function saveDetails() {
+  if (state.acquired) { toast('Planning is locked', 'error'); return; }
+  const r = state.rows.find(x => x.id === state._activeRowId);
+  if (!r) { closeDetailsDrawer(); return; }
+  if (state._detailsEditMode) {
+    // Read editable inputs back into the row
+    document.querySelectorAll('#details_form .dform-input[data-field]').forEach(inp => {
+      const f = inp.dataset.field;
+      let v = inp.value;
+      if (inp.type === 'number') v = v === '' ? '' : Number(v);
+      r[f] = v;
+    });
+    // Recompute amount if both qty & rate present
+    if (r.qty !== '' && r.qty != null && r.rate !== '' && r.rate != null) {
+      r.amount = +(Number(r.qty) * Number(r.rate)).toFixed(2);
+    }
+    state.dirty = true;
+    state.simNeedsRefresh = true;
+    state.lastEdited = ts();
   }
-  $('cur_summary').style.display = 'flex';
-  $('cur_value').textContent = '$' + entry.cur.toFixed(2);
-  $('cur_daily').textContent = entry.daily + ' m³/day';
-  $('cur_soil').textContent = entry.soil;
-  $('cur_resources_tbl').style.display = 'table';
-  $('cur_resources_empty').style.display = 'none';
+  state._detailsEditMode = false;
+  state._drawerSnapshot = null;
+  state._activeRowId = null;
+  $('curDrawer').classList.remove('show');
+  $('curDrawerScrim').classList.remove('show');
+  render();
+  toast('Details saved', 'success');
+}
 
-  const rowId = state._activeRowId;
-  const overrides = (rowId && state.resourceOverrides[rowId]) || {};
+function renderDetailsForm() {
+  const r = state.rows.find(x => x.id === state._activeRowId);
+  if (!r) return;
+  const editing = state._detailsEditMode && !state.acquired;
 
-  $('cur_resources_body').innerHTML = entry.resources.map(x => {
-    const rate = overrides[x.res] != null ? overrides[x.res] : x.rate;
-    return `
-    <tr>
-      <td>${x.res}</td>
-      <td>${x.type}</td>
-      <td class="num">${x.units}</td>
-      <td class="num"><input class="cell-input res-rate" data-res="${x.res.replace(/"/g, '&quot;')}" type="number" step="0.01" value="${rate}" style="width:80px; border:1px solid var(--neutral-200); background:var(--white)" /> <span style="color:var(--neutral-500); font-size:11px">/h</span></td>
-    </tr>
-  `;
+  let html = DETAIL_FIELDS.map(f => {
+    const val = r[f.field] != null && r[f.field] !== '' ? r[f.field] : '';
+    if (editing && f.editable) {
+      return `<div class="dform-row">
+        <label>${f.label}</label>
+        <input class="dform-input" data-field="${f.field}" type="${f.type || 'text'}" value="${val}" />
+      </div>`;
+    }
+    return `<div class="dform-row">
+      <label>${f.label}</label>
+      <div class="dform-display">${val !== '' ? val : '—'}</div>
+    </div>`;
   }).join('');
+
+  // Estimated Unit Rate (Simulation-derived from CUR / Knowledge — never editable here)
+  const rateText = (r.rate !== '' && r.rate != null) ? (fmt$(r.rate) + '/' + (r.unit || 'm³')) : '—';
+  html += `
+    <div class="dform-row">
+      <div class="dform-label-row">
+        <label>Estimated Unit Rate</label>
+        <select class="dform-method" disabled>
+          <option>Unit Rate Retrieval Method</option>
+        </select>
+      </div>
+      <div class="dform-display sim-locked">${rateText}</div>
+    </div>
+    <div class="dform-row">
+      <label>Estimated Amount</label>
+      <div class="dform-display sim-locked">${(r.amount !== '' && r.amount != null) ? fmt$(r.amount) : '—'}</div>
+    </div>
+  `;
+
+  $('details_form').innerHTML = html;
+  $('details_edit_btn').textContent = editing ? 'Cancel' : 'Edit';
 }
 
 function openImportConfirm() {
@@ -1440,16 +1774,6 @@ document.addEventListener('DOMContentLoaded', () => {
   $('btnImport').addEventListener('click', openImportConfirm);
   $('btnDisplay').addEventListener('click', () => openModal('displayModal'));
 
-  // Resources drawer — save rate edits to per-row overrides on change
-  $('cur_resources_body').addEventListener('change', (e) => {
-    if (!e.target.matches('.res-rate')) return;
-    const rowId = state._activeRowId;
-    if (!rowId) return;
-    const resName = e.target.dataset.res;
-    const newRate = Number(e.target.value);
-    if (!state.resourceOverrides[rowId]) state.resourceOverrides[rowId] = {};
-    state.resourceOverrides[rowId][resName] = Number.isFinite(newRate) ? newRate : 0;
-  });
   $('btnExport').addEventListener('click', () => toast('Export started (prototype)'));
   $('btnAcquire').addEventListener('click', () => {
     if (!state.imported || state.acquired) return;
