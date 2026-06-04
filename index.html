@@ -230,6 +230,13 @@
   table.sc tbody td { padding:8px 10px; border-bottom:1px solid var(--neutral-100); font-size:12px; }
   table.sc tbody tr:last-child td { border-bottom:none; }
   table.sc td.num { text-align:right; font-variant-numeric:tabular-nums; }
+  .sc-price-input {
+    width:72px; padding:4px 6px;
+    border:1px solid var(--neutral-300); border-radius:4px;
+    font-size:12px; background:var(--white); outline:none;
+    font-family:inherit; color:var(--neutral-900);
+  }
+  .sc-price-input:focus { border-color:var(--indigo-400); box-shadow:0 0 0 2px var(--indigo-50); }
 
   .empty-nested {
     background:var(--white); border:1px dashed var(--neutral-300); padding:16px; border-radius:6px;
@@ -447,8 +454,9 @@
     cursor:pointer;
     display:inline-flex; align-items:center; justify-content:center;
   }
-  .knowledge-btn:hover { background:var(--indigo-200); }
+  .knowledge-btn:hover:not(:disabled) { background:var(--indigo-100); }
   .knowledge-btn svg { width:16px; height:16px; }
+  .knowledge-btn:disabled { opacity:.4; cursor:not-allowed; }
 
   /* ---------- CUR Search drawer ---------- */
   .cur-search-wrap { position:relative; margin-bottom:14px; }
@@ -1031,6 +1039,12 @@ const state = {
   dirty: false,        // unsaved changes within edit mode
   simNeedsRefresh: false, // planning changed since last Sim → show update badge on Run Sim
   simHasNewer: false,  // Sim has newer result not yet imported → show badge on Import
+  // Dual-track dirty detection for the Save flow:
+  //   dirtyPlanning — qty / soil / lv1-4 / unit / wbs / accounting / row add+delete / CUR apply
+  //   dirtyCost     — Resource Price (SC task rate) changes
+  // Save evaluates these to decide whether to raise the "Simulation update required" banner.
+  dirtyPlanning: false,
+  dirtyCost: false,
   acquired: false,     // Performance Data acquisition started → planning locked
   rows: [],
   // Resources drawer state — persisted for the session
@@ -1171,19 +1185,25 @@ function render() {
 
   // Toolbar buttons
   const hasRows = state.rows.length > 0;
-  $('btnRunSim').disabled = !state.planName || state.editMode;
+  // Run Simulation is enabled only when planning inputs have changed since the last Sim
+  // (state.simNeedsRefresh). Cost-only saves keep this false → Run Sim stays disabled.
+  $('btnRunSim').disabled = !state.planName || state.editMode || !state.simNeedsRefresh;
   $('btnRunSim').title = !state.planName
     ? 'Create a plan first'
     : state.editMode ? 'Save or cancel your edits first'
-    : (state.simNeedsRefresh ? 'Simulation update required — sim-sensitive inputs changed' : 'Send plan inputs to Smart Construction Simulation');
+    : !state.simNeedsRefresh ? 'Simulation is up to date — no planning changes pending'
+    : 'Simulation update required — send the latest plan to Smart Construction Simulation';
   $('btnRunSim').classList.toggle('has-badge', !!state.simNeedsRefresh && !state.editMode);
   $('btnRunSim').dataset.badge = state.simNeedsRefresh ? 'Simulation update required' : '';
 
-  $('btnImport').disabled = !state.planName || state.editMode;
+  // Import is enabled only when there's a newer Simulation result pending (state.simHasNewer).
+  // Cost-only saves don't produce a new Simulation result → Import stays disabled.
+  $('btnImport').disabled = !state.planName || state.editMode || !state.simHasNewer;
   $('btnImport').title = !state.planName
     ? 'Create a plan first'
     : state.editMode ? 'Save or cancel your edits first'
-    : (state.simHasNewer ? 'New Simulation Update Available' : 'Pull the latest Simulation result into Abacus');
+    : !state.simHasNewer ? 'No new Simulation result available'
+    : 'New Simulation Update Available — pull it into Abacus';
   $('btnImport').classList.toggle('has-badge', !!state.simHasNewer && !state.editMode);
   $('btnImport').dataset.badge = state.simHasNewer ? 'New Simulation Update Available' : '';
 
@@ -1265,16 +1285,16 @@ function render() {
       <td class="locked">${r.area || '—'}</td>
       <td class="locked">${r.block || '—'}</td>
       <td>${cellInput(r.id,'soil', r.soil, {options:['Sandy Soil','Gravel Soil','Clay Soil','Soft Rock','Hard Rock'], placeholder:'Required'})}</td>
-      <td class="num">${cellInput(r.id,'qty', r.qty, {kind:'num', placeholder:'0'})}</td>
-      <td>${cellInput(r.id,'unit', r.unit, {options:['m³','m²','m','t']})}</td>
+      <td class="num">${cellInput(r.id,'qty', r.qty, {kind:'num', placeholder:'0', postLocked:true})}</td>
+      <td>${cellInput(r.id,'unit', r.unit, {options:['m³','m²','m','t'], postLocked:true})}</td>
       <td class="num locked col-cdays">${r.cdays || '—'}</td>
       <td class="num locked col-dout">${r.dout ? r.dout + ' ' + (r.unit||'') : '—'}</td>
       <td class="locked col-start">${r.startDate || '—'}</td>
       <td class="locked col-end">${r.endDate || '—'}</td>
       <td class="num">
         <div class="rate-cell">
-          <span class="rate-value">${cellInput(r.id,'rate', r.rate, {kind:'num', placeholder:'0.00'})}</span>
-          <button class="knowledge-btn" onclick="event.stopPropagation(); openCurSearchDrawer('${r.id}')" title="Apply Construction Unit Rate from Knowledge">
+          <span class="rate-value">${cellInput(r.id,'rate', r.rate, {kind:'num', placeholder:'0.00', postLocked:true})}</span>
+          <button class="knowledge-btn" ${state.imported ? 'disabled' : ''} onclick="event.stopPropagation(); if(!this.disabled) openCurSearchDrawer('${r.id}')" title="${state.imported ? 'Unit Rate is Simulation-managed after import — edit Resource Price in SC tasks to change' : 'Apply Construction Unit Rate from Knowledge'}">
             <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M480-160q-132 0-226-37.5T160-290v-380q0-52 94-90t226-38q132 0 226 38t94 90v100q-19-3-37-7t-43-7v-12.5q0-30.43-58.5-55.46Q583-677 480-677t-161.5 25.04Q260-626.93 260-596.5q0 31.5 58.5 56.5T480-515h25q-3 6-3.5 12.5T501-490h-21q-86 0-159-17.5T200-561v97q0 31.5 58.5 56.5T480-382q-2 12-2 24.5t1 24.5h1q-86 0-159-17.5T200-405v95q0 30.43 58.5 55.46Q317-229.5 480-229.5q22 0 41.5-2.5T560-237q9 19 18.5 35t21.5 31q-30 5-58 8t-62 3Zm230 0v-119H591l149-141 150 141H770v119h-60Z"/></svg>
           </button>
         </div>
@@ -1330,26 +1350,56 @@ function renderNested(r) {
       <div class="empty-nested">No Simulation results yet.</div>
     </div>`;
   }
+  const canEditRate = state.editMode && !state.acquired;
   return `<div class="nested">
     <div class="title">Simulation-generated SC Tasks</div>
-    <div class="subtitle">Edit parent task or resource prices, then re-run or re-import Simulation to update details.</div>
+    <div class="subtitle">Edit a Resource Price to update that SC task's Total Amount; the parent Unit Rate recalculates automatically.</div>
     <table class="sc">
       <thead><tr>
         <th>Work Details</th><th>Start</th><th>End</th>
         <th>Equipment &amp; No. Units</th>
-        <th>Resource Rate</th>
+        <th>Resource Price</th>
         <th>Total Amount</th>
       </tr></thead>
       <tbody>
-        ${r.sc.tasks.map(t=>`<tr>
+        ${r.sc.tasks.map((t, i) => `<tr>
           <td>${t.name}</td><td>${t.start}</td><td>${t.end}</td>
           <td>${t.eq}</td>
-          <td>${fmt$(t.rate)}/h</td>
+          <td>${canEditRate
+            ? `<input class="sc-price-input" type="number" step="0.01" min="0"
+                      data-row-id="${r.id}" data-task-idx="${i}"
+                      value="${t.rate}"
+                      onchange="onScPriceChange(this.dataset.rowId, this.dataset.taskIdx, this.value)" /> <span style="color:var(--neutral-500); font-size:11px">/h</span>`
+            : `${fmt$(t.rate)}/h`}</td>
           <td><strong>${fmt$(t.total)}</strong></td>
         </tr>`).join('')}
       </tbody>
     </table>
   </div>`;
+}
+
+/* SC task Resource Price edit handler. Recalc this task's total, then propagate
+   to parent Unit Rate (sum of SC task totals / parent qty) and Amount. */
+function onScPriceChange(rowId, taskIdx, newRateStr) {
+  const r = state.rows.find(x => x.id === rowId);
+  if (!r || !r.sc || !r.sc.tasks[Number(taskIdx)]) return;
+  const task = r.sc.tasks[Number(taskIdx)];
+  const newRate = Number(newRateStr);
+  if (!isFinite(newRate) || newRate < 0) return;
+  // Implicit duration multiplier — preserves the task's relationship between rate and total
+  const oldRate = Number(task.rate) || 1;
+  const multiplier = Number(task.total) / oldRate;
+  task.rate = newRate;
+  task.total = +(newRate * multiplier).toFixed(2);
+  // Propagate to parent Unit Rate proportionally
+  const totalSum = r.sc.tasks.reduce((sum, t) => sum + Number(t.total || 0), 0);
+  if (r.qty && Number(r.qty) > 0) {
+    r.rate = +(totalSum / Number(r.qty)).toFixed(4);
+    r.amount = +totalSum.toFixed(2);
+  }
+  state.dirty = true;
+  state.dirtyCost = true;  // Resource Price edits are cost-only
+  render();
 }
 
 /* ============================================================
@@ -1390,6 +1440,7 @@ function addParentTask() {
   state.rows.push(newRow);
   state.selectedId = newRow.id;
   state.dirty = true;
+  state.dirtyPlanning = true;  // adding a row changes Simulation scope
   render();
   // Focus the new row's Lv1 input
   setTimeout(() => {
@@ -1404,7 +1455,7 @@ function deleteSelectedRow() {
   state.expanded.delete(state.selectedId);
   state.selectedId = null;
   state.dirty = true;
-  state.simNeedsRefresh = true;
+  state.dirtyPlanning = true;  // removing a row changes Simulation scope
   render();
   toast('Row deleted');
 }
@@ -1419,6 +1470,8 @@ function enterEdit() {
   state.rowsBackup = JSON.parse(JSON.stringify(state.rows));
   state.editMode = true;
   state.dirty = false;
+  state.dirtyPlanning = false;
+  state.dirtyCost = false;
   render();
 }
 
@@ -1427,6 +1480,8 @@ function cancelEdit() {
   state.rowsBackup = null;
   state.editMode = false;
   state.dirty = false;
+  state.dirtyPlanning = false;
+  state.dirtyCost = false;
   state.selectedId = null;
   render();
   toast('Edits discarded');
@@ -1434,13 +1489,25 @@ function cancelEdit() {
 
 function saveTable() {
   if (!state.dirty) { state.editMode = false; render(); return; }
+  const planningChanged = state.dirtyPlanning;
+  const costChanged    = state.dirtyCost;
   state.dirty = false;
+  state.dirtyPlanning = false;
+  state.dirtyCost = false;
   state.editMode = false;
   state.rowsBackup = null;
   state.lastEdited = ts();
-  state.simNeedsRefresh = true; // any save → simulation may need refresh
+  // Only planning-class changes require a Simulation refresh.
+  // Cost-only changes (Resource Price) auto-recalculate Unit Rate + Amount without re-running Simulation.
+  if (planningChanged) state.simNeedsRefresh = true;
   render();
-  toast('Changes saved', 'success');
+  if (planningChanged) {
+    toast('Changes saved. Simulation update required.', 'success');
+  } else if (costChanged) {
+    toast('Costs recalculated. No Simulation refresh needed.', 'success');
+  } else {
+    toast('Changes saved', 'success');
+  }
 }
 
 function applyDisplay() {
@@ -1546,7 +1613,7 @@ function applyCurPackage(pkgId) {
   }
   state.curByRow[row.id] = pkg.id;
   state.dirty = true;
-  state.simNeedsRefresh = true; // resource composition may differ from previous CUR
+  state.dirtyPlanning = true; // CUR change → composition differs → planning-class change
   closeCurSearchDrawer();
   render();
   toast(`Applied "${pkg.packageName}"`, 'success');
@@ -1819,8 +1886,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (amtCell) amtCell.textContent = fmt$(r.amount);
     }
     state.dirty = true;
-    // Sim-sensitive fields → mark simulation refresh needed
-    if (['qty','soil','lv1','lv2','lv3','lv4'].includes(f)) state.simNeedsRefresh = true;
+    // Classify the change for the dual-track dirty model.
+    // Planning fields (anything that would affect Simulation):
+    const PLANNING_FIELDS = ['qty','soil','lv1','lv2','lv3','lv4','unit','wbs','wbs2','acct'];
+    const COST_FIELDS = ['rate']; // rate is post-locked, but kept here for completeness
+    if (PLANNING_FIELDS.includes(f)) state.dirtyPlanning = true;
+    else if (COST_FIELDS.includes(f)) state.dirtyCost = true;
     const total = state.rows.reduce((s, r) => s + (Number(r.amount)||0), 0);
     $('totalAmt').textContent = fmt$(total || 0);
     $('btnSave').disabled = false;
