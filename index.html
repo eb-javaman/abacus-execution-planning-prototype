@@ -1185,16 +1185,19 @@ function render() {
 
   // Toolbar buttons
   const hasRows = state.rows.length > 0;
-  // Run Simulation is enabled only when planning inputs have changed since the last Sim
-  // (state.simNeedsRefresh). Cost-only saves keep this false → Run Sim stays disabled.
-  $('btnRunSim').disabled = !state.planName || state.editMode || !state.simNeedsRefresh;
+  // Single-run Simulation UX — Run Simulation is enabled only once for this plan.
+  // After it has been run, subsequent edits never re-enable it. The user follows:
+  //   Save → Run Simulation → Import Latest Simulation Plan → (done; later edits stay in Abacus)
+  $('btnRunSim').disabled = !state.planName || state.editMode || !hasRows || state.simulationRun;
   $('btnRunSim').title = !state.planName
     ? 'Create a plan first'
     : state.editMode ? 'Save or cancel your edits first'
-    : !state.simNeedsRefresh ? 'Simulation is up to date — no planning changes pending'
-    : 'Simulation update required — send the latest plan to Smart Construction Simulation';
-  $('btnRunSim').classList.toggle('has-badge', !!state.simNeedsRefresh && !state.editMode);
-  $('btnRunSim').dataset.badge = state.simNeedsRefresh ? 'Simulation update required' : '';
+    : !hasRows ? 'Add at least one parent task first'
+    : state.simulationRun ? 'Simulation has been run for this plan'
+    : 'Send the plan to Smart Construction Simulation';
+  // No persistent "update required" badge — Simulation is a one-time send
+  $('btnRunSim').classList.remove('has-badge');
+  $('btnRunSim').dataset.badge = '';
 
   // Import is enabled only when there's a newer Simulation result pending (state.simHasNewer).
   // Cost-only saves don't produce a new Simulation result → Import stays disabled.
@@ -1497,16 +1500,14 @@ function saveTable() {
   state.editMode = false;
   state.rowsBackup = null;
   state.lastEdited = ts();
-  // Only planning-class changes require a Simulation refresh.
-  // Cost-only changes (Resource Price) auto-recalculate Unit Rate + Amount without re-running Simulation.
-  if (planningChanged) state.simNeedsRefresh = true;
+  // Single-run Simulation UX — edits never re-trigger Simulation.
+  // Cost changes auto-recalculate within Abacus; planning changes are stored but do not
+  // require sending the plan back to Simulation.
   render();
-  if (planningChanged) {
-    toast('Changes saved. Simulation update required.', 'success');
-  } else if (costChanged) {
-    toast('Costs recalculated. No Simulation refresh needed.', 'success');
+  if (costChanged && !planningChanged) {
+    toast('Costs recalculated.', 'success');
   } else {
-    toast('Changes saved', 'success');
+    toast('Changes saved.', 'success');
   }
 }
 
@@ -1726,8 +1727,9 @@ function saveDetails() {
       r.amount = +(Number(r.qty) * Number(r.rate)).toFixed(2);
     }
     state.dirty = true;
-    state.simNeedsRefresh = true;
+    state.dirtyPlanning = true;  // Details fields are planning fields
     state.lastEdited = ts();
+    // Single-run Simulation UX — no simNeedsRefresh flip
   }
   state._detailsEditMode = false;
   state._drawerSnapshot = null;
