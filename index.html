@@ -158,7 +158,7 @@
     min-width:100%; border-collapse:collapse; font-size:12px;
   }
   table.ep thead th {
-    background:var(--neutral-50); color:var(--neutral-700); font-weight:600;
+    background:var(--neutral-50); color:var(--black); font-weight:600;
     text-align:left; padding:10px 10px; border-bottom:1px solid var(--neutral-200);
     border-right:1px solid var(--neutral-200);
     white-space:nowrap; font-size:11px; text-transform:uppercase; letter-spacing:.4px;
@@ -168,7 +168,7 @@
     padding:4px 10px; border-bottom:1px solid var(--neutral-100);
     border-right:1px solid var(--neutral-100);
     vertical-align:middle; text-align:left;
-    color:var(--neutral-800); white-space:nowrap;
+    color:var(--neutral-900); white-space:nowrap;
   }
   /* Allow Memo cell to wrap (otherwise long notes force the table extremely wide) */
   table.ep tbody td.col-memo { white-space:normal; min-width:200px; max-width:300px; }
@@ -182,7 +182,21 @@
   table.ep tbody tr:hover > td { background:var(--neutral-50); }
   table.ep tbody tr.expanded > td { background:var(--indigo-50); }
   table.ep td.num { text-align:left; font-variant-numeric:tabular-nums; }
-  table.ep td.locked { color:var(--neutral-500); }
+  table.ep td.locked,
+  table.ep .locked-value { color:var(--neutral-500); }
+  /* Non-editable column headers — dimmed so users can scan editability from the header row too */
+  table.ep thead .col-sccat,
+  table.ep thead .col-area,
+  table.ep thead .col-block,
+  table.ep thead .col-soil,
+  table.ep thead .col-cdays,
+  table.ep thead .col-dout,
+  table.ep thead .col-start,
+  table.ep thead .col-end { color:var(--neutral-500); }
+  /* Post-import: Quantity, Unit, Unit Rate become locked → dim their headers too */
+  body.imported table.ep thead .col-qty,
+  body.imported table.ep thead .col-unit,
+  body.imported table.ep thead .col-rate { color:var(--neutral-500); }
   .cell-input {
     width:100%; border:1px solid transparent; border-radius:4px;
     padding:4px 6px; font-size:12px; background:transparent; outline:none;
@@ -210,7 +224,17 @@
   .expand-btn.open { background:var(--indigo-200); color:var(--indigo-50); border-color:var(--indigo-200); }
   .expand-btn.open svg { transform:rotate(180deg); }
 
-  /* ---------- Nested SC tasks ---------- */
+  /* ---------- Nested tasks ---------- */
+  /* Sticky wrapper — pins the nested panel to the visible scroll viewport so the user
+     doesn't have to scroll horizontally to read task content. Width is set via the
+     --scroll-viewport-w CSS variable, kept in sync with .table-scroll.clientWidth. */
+  .nested-row > td { padding:0; background:var(--neutral-50); }
+  .nested-sticky {
+    position:sticky; left:0;
+    width:var(--scroll-viewport-w, 100%);
+    max-width:var(--scroll-viewport-w, 100%);
+    box-sizing:border-box;
+  }
   .nested {
     background:var(--neutral-50); padding:16px 16px 18px; border-top:1px solid var(--neutral-200);
   }
@@ -231,10 +255,10 @@
   table.sc tbody tr:last-child td { border-bottom:none; }
   table.sc td.num { text-align:right; font-variant-numeric:tabular-nums; }
   .sc-price-input {
-    width:72px; padding:4px 6px;
+    width:80px; padding:4px 8px;
     border:1px solid var(--neutral-300); border-radius:4px;
     font-size:12px; background:var(--white); outline:none;
-    font-family:inherit; color:var(--neutral-900);
+    font-family:inherit; color:var(--neutral-900); font-weight:600;
   }
   .sc-price-input:focus { border-color:var(--indigo-400); box-shadow:0 0 0 2px var(--indigo-50); }
 
@@ -289,7 +313,7 @@
 
   /* ---------- Toast ---------- */
   .toast {
-    position:fixed; bottom:64px; right:24px; left:auto;
+    position:fixed; bottom:32px; right:24px; left:auto;
     background:var(--white); border:1.5px solid var(--neutral-300);
     border-radius:8px; padding:12px 14px 12px 12px;
     display:none; align-items:flex-start; gap:10px;
@@ -524,7 +548,7 @@
 
   /* Selected row style */
   table.ep tbody tr.selected > td { background:var(--indigo-50); }
-  table.ep tbody tr.selected.expanded > td { background:var(--indigo-100); }
+  table.ep tbody tr.selected.expanded > td { background:var(--indigo-50); }
 
   /* ---------- Frozen columns (sticky during horizontal scroll) ----------
      Left-frozen: Task Lv1–Lv4
@@ -559,10 +583,13 @@
   table.ep .col-lv4::after  {
     right:-10px;
     background:linear-gradient(to right, rgba(0,0,0,0.10), rgba(0,0,0,0));
+    border-left: solid var(--neutral-500) 1px;
+    
   }
   table.ep .col-amount::before {
     left:-10px;
     background:linear-gradient(to left,  rgba(0,0,0,0.10), rgba(0,0,0,0));
+    border-right: solid var(--neutral-500) 1px;
   }
   .table-scroll.is-scrolled-left  table.ep .col-lv4::after  { opacity:1; }
   .table-scroll.is-scrolled-right table.ep .col-amount::before { opacity:1; }
@@ -740,16 +767,16 @@
             <th class="col-lv3">Task (Lv3)</th>
             <th class="col-lv4">Task (Lv4)</th>
             <th class="col-sccat">SC Category</th>
-            <th>Area</th>
-            <th>Block</th>
-            <th>Soil Type<span class="req">*</span></th>
-            <th>Quantity / Volume</th>
-            <th>Unit</th>
+            <th class="col-area">Area</th>
+            <th class="col-block">Block</th>
+            <th class="col-soil">Soil Type<span class="req">*</span></th>
+            <th class="col-unit">Unit</th>
+            <th class="col-qty">Quantity / Volume</th>
             <th class="col-cdays">Construction Days</th>
             <th class="col-dout">Daily Output</th>
             <th class="col-start">Start Date</th>
             <th class="col-end">End Date</th>
-            <th>Unit Rate</th>
+            <th class="col-rate">Unit Rate</th>
             <th class="col-amount">Amount</th>
             <th class="col-memo">Memo</th>
             <th class="col-actions">Actions</th>
@@ -872,7 +899,7 @@
     </div>
     <div class="modal-body">
       The current Execution Planning table will be updated with the latest Simulation-generated
-      <strong>areas, blocks, SC tasks, resources, and costs</strong>. Your edits to Abacus-managed fields will be preserved.
+      <strong>areas, blocks, tasks, resources, and costs</strong>. Your edits to Abacus-managed fields will be preserved.
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('importModal')">Cancel</button>
@@ -927,8 +954,9 @@
   </div>
 
   <div class="drawer-footer" style="justify-content:center; gap:10px">
-    <button id="details_edit_btn" class="btn" onclick="toggleDetailsEdit()">Edit</button>
-    <button id="details_save_btn" class="btn primary" onclick="saveDetails()">Save</button>
+    <button id="details_edit_btn"   class="btn"         onclick="enterDetailsEdit()">Edit</button>
+    <button id="details_cancel_btn" class="btn"         onclick="cancelDetailsEdit()" style="display:none">Cancel</button>
+    <button id="details_save_btn"   class="btn primary" onclick="saveDetailsAndClose()" style="display:none">Save</button>
   </div>
 </aside>
 
@@ -1041,7 +1069,7 @@ const state = {
   simHasNewer: false,  // Sim has newer result not yet imported → show badge on Import
   // Dual-track dirty detection for the Save flow:
   //   dirtyPlanning — qty / soil / lv1-4 / unit / wbs / accounting / row add+delete / CUR apply
-  //   dirtyCost     — Resource Price (SC task rate) changes
+  //   dirtyCost     — Resource Price (task rate) changes
   // Save evaluates these to decide whether to raise the "Simulation update required" banner.
   dirtyPlanning: false,
   dirtyCost: false,
@@ -1144,6 +1172,10 @@ $('t-close').addEventListener('click', hideToast);
 function updateFreezeShadows() {
   const el = document.querySelector('.table-scroll');
   if (!el) return;
+  // Keep the nested-row sticky panel sized to the visible scroll viewport
+  if (el.clientWidth > 0) {
+    document.documentElement.style.setProperty('--scroll-viewport-w', el.clientWidth + 'px');
+  }
   // No layout yet (parent hidden) → clear classes
   if (el.clientWidth === 0 || el.scrollWidth === 0) {
     el.classList.remove('is-scrolled-left');
@@ -1186,18 +1218,22 @@ function render() {
   // Toolbar buttons
   const hasRows = state.rows.length > 0;
   // Single-run Simulation UX — Run Simulation is enabled only once for this plan.
-  // After it has been run, subsequent edits never re-enable it. The user follows:
-  //   Save → Run Simulation → Import Latest Simulation Plan → (done; later edits stay in Abacus)
-  $('btnRunSim').disabled = !state.planName || state.editMode || !hasRows || state.simulationRun;
+  // The "Simulation update required" badge appears as soon as the user has saved a plan
+  // with rows and stays visible until Simulation has been run. Subsequent post-import edits
+  // never re-raise the badge.
+  const runSimReady = state.planName && hasRows && !state.simulationRun;
+  const runSimEnabled = runSimReady && !state.editMode;
+  $('btnRunSim').disabled = !runSimEnabled;
   $('btnRunSim').title = !state.planName
     ? 'Create a plan first'
     : state.editMode ? 'Save or cancel your edits first'
     : !hasRows ? 'Add at least one parent task first'
     : state.simulationRun ? 'Simulation has been run for this plan'
     : 'Send the plan to Smart Construction Simulation';
-  // No persistent "update required" badge — Simulation is a one-time send
-  $('btnRunSim').classList.remove('has-badge');
-  $('btnRunSim').dataset.badge = '';
+  // Badge stays visible during the entire "needs to run sim" phase, even while the user
+  // is in edit mode, so the prompt remains discoverable.
+  $('btnRunSim').classList.toggle('has-badge', !!runSimReady);
+  $('btnRunSim').dataset.badge = runSimReady ? 'Simulation update required' : '';
 
   // Import is enabled only when there's a newer Simulation result pending (state.simHasNewer).
   // Cost-only saves don't produce a new Simulation result → Import stays disabled.
@@ -1258,10 +1294,12 @@ function render() {
   const tbody = $('tbody');
   tbody.innerHTML = '';
   if (state.rows.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="21" style="padding:36px 16px; text-align:center; color:var(--neutral-600)">
-      <div style="font-weight:600; color:var(--neutral-800); margin-bottom:4px">No parent tasks yet</div>
-      <div style="font-size:12px; color:var(--neutral-500); margin-bottom:12px">Add parent tasks, assign resources, then Run Simulation to generate Area / Block details.</div>
-      <button class="btn primary btn-sm" onclick="addParentTask()">+ Add Parent Task</button>
+    tbody.innerHTML = `<tr class="nested-row"><td colspan="21" style="padding:0">
+      <div class="nested-sticky" style="padding:36px 16px; text-align:center; color:var(--neutral-600)">
+        <div style="font-weight:600; color:var(--neutral-800); margin-bottom:4px">No parent tasks yet</div>
+        <div style="font-size:12px; color:var(--neutral-500); margin-bottom:12px">Add parent tasks, assign resources, then Run Simulation to generate Area / Block details.</div>
+        <button class="btn primary btn-sm" onclick="addParentTask()">+ Add Parent Task</button>
+      </div>
     </td></tr>`;
     return;
   }
@@ -1276,7 +1314,7 @@ function render() {
     if (isSelected) tr.classList.add('selected');
     tr.innerHTML = `
       <td>
-        <button class="expand-btn ${isExpanded?'open':''}" onclick="toggleExpand('${r.id}')" title="${isExpanded?'Collapse':'Expand'} SC tasks" aria-label="${isExpanded?'Collapse':'Expand'}"><svg viewBox="0 0 12 12" width="10" height="10" fill="none"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button class="expand-btn ${isExpanded?'open':''}" onclick="toggleExpand('${r.id}')" title="${isExpanded?'Collapse':'Expand'} tasks" aria-label="${isExpanded?'Collapse':'Expand'}"><svg viewBox="0 0 12 12" width="10" height="10" fill="none"><path d="M3 4.5l3 3 3-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </td>
       <td class="col-wbs">${cellInput(r.id,'wbs', r.wbs, {placeholder:'—'})}</td>
       <td class="col-acct">${cellInput(r.id,'acct', r.acct, {placeholder:'—'})}</td>
@@ -1287,17 +1325,17 @@ function render() {
       <td class="locked col-sccat">${r.scCat || '—'}</td>
       <td class="locked">${r.area || '—'}</td>
       <td class="locked">${r.block || '—'}</td>
-      <td>${cellInput(r.id,'soil', r.soil, {options:['Sandy Soil','Gravel Soil','Clay Soil','Soft Rock','Hard Rock'], placeholder:'Required'})}</td>
-      <td class="num">${cellInput(r.id,'qty', r.qty, {kind:'num', placeholder:'0', postLocked:true})}</td>
+      <td class="locked">${r.soil || '—'}</td>
       <td>${cellInput(r.id,'unit', r.unit, {options:['m³','m²','m','t'], postLocked:true})}</td>
+      <td class="num">${cellInput(r.id,'qty', r.qty, {kind:'num', placeholder:'0', postLocked:true, suffix: r.unit ? ' ' + r.unit : ''})}</td>
       <td class="num locked col-cdays">${r.cdays || '—'}</td>
-      <td class="num locked col-dout">${r.dout ? r.dout + ' ' + (r.unit||'') : '—'}</td>
+      <td class="num locked col-dout">${r.dout ? r.dout + ' ' + (r.unit||'') + '/day' : '—'}</td>
       <td class="locked col-start">${r.startDate || '—'}</td>
       <td class="locked col-end">${r.endDate || '—'}</td>
       <td class="num">
         <div class="rate-cell">
-          <span class="rate-value">${cellInput(r.id,'rate', r.rate, {kind:'num', placeholder:'0.00', postLocked:true})}</span>
-          <button class="knowledge-btn" ${state.imported ? 'disabled' : ''} onclick="event.stopPropagation(); if(!this.disabled) openCurSearchDrawer('${r.id}')" title="${state.imported ? 'Unit Rate is Simulation-managed after import — edit Resource Price in SC tasks to change' : 'Apply Construction Unit Rate from Knowledge'}">
+          <span class="rate-value">${cellInput(r.id,'rate', r.rate, {kind:'num', placeholder:'0.00', postLocked:true, prefix:'$', suffix: r.unit ? '/' + r.unit : ''})}</span>
+          <button class="knowledge-btn" ${state.imported ? 'disabled' : ''} onclick="event.stopPropagation(); if(!this.disabled) openCurSearchDrawer('${r.id}')" title="${state.imported ? 'Unit Rate is Simulation-managed after import — edit Resource Price in tasks to change' : 'Apply Construction Unit Rate from Knowledge'}">
             <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M480-160q-132 0-226-37.5T160-290v-380q0-52 94-90t226-38q132 0 226 38t94 90v100q-19-3-37-7t-43-7v-12.5q0-30.43-58.5-55.46Q583-677 480-677t-161.5 25.04Q260-626.93 260-596.5q0 31.5 58.5 56.5T480-515h25q-3 6-3.5 12.5T501-490h-21q-86 0-159-17.5T200-561v97q0 31.5 58.5 56.5T480-382q-2 12-2 24.5t1 24.5h1q-86 0-159-17.5T200-405v95q0 30.43 58.5 55.46Q317-229.5 480-229.5q22 0 41.5-2.5T560-237q9 19 18.5 35t21.5 31q-30 5-58 8t-62 3Zm230 0v-119H591l149-141 150 141H770v119h-60Z"/></svg>
           </button>
         </div>
@@ -1312,12 +1350,17 @@ function render() {
 
     if (isExpanded) {
       const trN = document.createElement('tr');
-      trN.innerHTML = `<td colspan="21" style="padding:0">${renderNested(r)}</td>`;
+      trN.className = 'nested-row';
+      trN.innerHTML = `<td colspan="21" style="padding:0"><div class="nested-sticky">${renderNested(r)}</div></td>`;
       tbody.appendChild(trN);
     }
   });
   // Re-evaluate freeze-boundary shadow after layout changes
   requestAnimationFrame(() => { if (typeof updateFreezeShadows === 'function') updateFreezeShadows(); });
+  // Keep the Details drawer in sync with table edit mode if it's currently open
+  if (state._activeRowId && $('curDrawer').classList.contains('show') && typeof renderDetailsForm === 'function') {
+    renderDetailsForm();
+  }
 }
 
 /**
@@ -1332,7 +1375,16 @@ function cellInput(id, field, val, opts={}) {
 
   if (!editable) {
     if (val==null || val==='') return '—';
-    return opts.kind==='num' ? fmtNum(val) : String(val);
+    const numStr = opts.kind==='num' ? fmtNum(val) : String(val);
+    const text = (opts.prefix || '') + numStr + (opts.suffix || '');
+    // Hard-locked = cell cannot be edited in the current context (post-import lock OR Acquired).
+    // These get the dim/greyed treatment so users can scan editability at a glance.
+    // (Cells that are simply "not in edit mode right now" stay full contrast — they're editable
+    //  once Edit is clicked.)
+    if (isLockedPostImport || state.acquired) {
+      return `<span class="locked-value">${text}</span>`;
+    }
+    return text;
   }
 
   if (opts.options) {
@@ -1348,15 +1400,15 @@ function cellInput(id, field, val, opts={}) {
 function renderNested(r) {
   if (!r.sc) {
     return `<div class="nested">
-      <div class="title">Simulation-generated SC Tasks</div>
+      <div class="title">Simulation-generated Tasks</div>
       <div class="subtitle">No Simulation results yet. Run Simulation or import a Simulation Plan to generate area/block details.</div>
       <div class="empty-nested">No Simulation results yet.</div>
     </div>`;
   }
   const canEditRate = state.editMode && !state.acquired;
   return `<div class="nested">
-    <div class="title">Simulation-generated SC Tasks</div>
-    <div class="subtitle">Edit a Resource Price to update that SC task's Total Amount; the parent Unit Rate recalculates automatically.</div>
+    <div class="title">Simulation-generated Tasks</div>
+    <div class="subtitle">Edit a Resource Price to update that task's Total Amount; the parent Unit Rate recalculates automatically.</div>
     <table class="sc">
       <thead><tr>
         <th>Work Details</th><th>Start</th><th>End</th>
@@ -1381,8 +1433,8 @@ function renderNested(r) {
   </div>`;
 }
 
-/* SC task Resource Price edit handler. Recalc this task's total, then propagate
-   to parent Unit Rate (sum of SC task totals / parent qty) and Amount. */
+/* task Resource Price edit handler. Recalc this task's total, then propagate
+   to parent Unit Rate (sum of task totals / parent qty) and Amount. */
 function onScPriceChange(rowId, taskIdx, newRateStr) {
   const r = state.rows.find(x => x.id === rowId);
   if (!r || !r.sc || !r.sc.tasks[Number(taskIdx)]) return;
@@ -1524,16 +1576,16 @@ function applyDisplay() {
 /* CUR catalog — would come from Knowledge Library in the live build */
 /* CUR packages — created in Abacus (not via Simulation). Used by the "Search Construction Unit Rate" drawer. */
 const CUR_PACKAGES = [
-  { id:'P-001', packageName:'Embankment - Sandy Soil',  workType:'Embankment', rate:1000, unit:'m³', daily:650, dailyLabel:'m³/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
-  { id:'P-002', packageName:'Embankment - Gravel Soil', workType:'Embankment', rate:12000, unit:'D', daily:650, dailyLabel:'m³/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
-  { id:'P-003', packageName:'Embankment - Clay Soil',   workType:'Embankment', rate:12000, unit:'D', daily:650, dailyLabel:'m³/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
-  { id:'P-004', packageName:'Excavation - Soft Rock',   workType:'Excavation', rate:8000,  unit:'D', daily:620, dailyLabel:'m³/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
-  { id:'P-005', packageName:'Excavation - Hard Rock',   workType:'Excavation', rate:1000,  unit:'D', daily:650, dailyLabel:'m³/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
-  { id:'P-006', packageName:'Roadbed Fill - Standard',  workType:'Road Works', rate:900,   unit:'D', daily:650, dailyLabel:'m³/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
-  { id:'P-007', packageName:'Roadbed Fill - Heavy',     workType:'Road Works', rate:3000,  unit:'D', daily:650, dailyLabel:'m³/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
-  { id:'P-008', packageName:'Cut & Fill Package A',     workType:'Embankment', rate:2000,  unit:'D', daily:650, dailyLabel:'m³/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
-  { id:'P-009', packageName:'Cut & Fill Package B',     workType:'Excavation', rate:1600,  unit:'D', daily:650, dailyLabel:'m³/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
-  { id:'P-010', packageName:'Slope Trimming Standard',  workType:'Road Works', rate:1300,  unit:'D', daily:650, dailyLabel:'m³/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
+  { id:'P-001', packageName:'Embankment - Sandy Soil',  workType:'Embankment', rate:1000,  unit:'㎥', daily:650, dailyLabel:'㎥/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
+  { id:'P-002', packageName:'Embankment - Gravel Soil', workType:'Embankment', rate:12000, unit:'㎥', daily:650, dailyLabel:'㎥/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
+  { id:'P-003', packageName:'Embankment - Clay Soil',   workType:'Embankment', rate:12000, unit:'㎥', daily:650, dailyLabel:'㎥/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
+  { id:'P-004', packageName:'Excavation - Soft Rock',   workType:'Excavation', rate:8000,  unit:'㎥', daily:620, dailyLabel:'㎥/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
+  { id:'P-005', packageName:'Excavation - Hard Rock',   workType:'Excavation', rate:1000,  unit:'㎥', daily:650, dailyLabel:'㎥/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
+  { id:'P-006', packageName:'Roadbed Fill - Standard',  workType:'Road Works', rate:900,   unit:'㎥', daily:650, dailyLabel:'㎥/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
+  { id:'P-007', packageName:'Roadbed Fill - Heavy',     workType:'Road Works', rate:3000,  unit:'㎥', daily:650, dailyLabel:'㎥/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
+  { id:'P-008', packageName:'Cut & Fill Package A',     workType:'Embankment', rate:2000,  unit:'㎥', daily:650, dailyLabel:'㎥/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
+  { id:'P-009', packageName:'Cut & Fill Package B',     workType:'Excavation', rate:1600,  unit:'㎥', daily:650, dailyLabel:'㎥/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
+  { id:'P-010', packageName:'Slope Trimming Standard',  workType:'Road Works', rate:1300,  unit:'㎥', daily:650, dailyLabel:'㎥/日', composition:'ショベル2台 12 | dozer 2 | 人 24' },
 ];
 
 let _curSearchState = { filter: '', activeRowId: null };
@@ -1654,25 +1706,34 @@ const CUR_CATALOG = {
 /* Fields config:
    - editable=true means the field is editable in Abacus (planning/business)
    - editable=false means Simulation-generated or computed — never editable here  */
+/* Details drawer fields — one entry per row column so the drawer is a complete view
+   of the row. `editable` and `postLocked` mirror the table's column rules; `suffix`
+   appends a unit string in display mode (matches the table cells). */
 const DETAIL_FIELDS = [
-  { label:'WBS Code ①',    field:'wbs',   editable:true },
-  { label:'WBS Code ②',    field:'wbs2',  editable:true },
-  { label:'Accounting Code', field:'acct', editable:true },
-  { label:'Work Type',     field:'lv1',   editable:true },
-  { label:'Category',      field:'lv2',   editable:true },
-  { label:'Specification', field:'lv3',   editable:true },
-  { label:'Standard',      field:'lv4',   editable:true },
-  { label:'Quantity',      field:'qty',   editable:true, type:'number' },
-  { label:'Unit',          field:'unit',  editable:true },
+  { label:'WBS Code ①',        field:'wbs',       editable:true,  type:'text' },
+  { label:'WBS Code ②',        field:'wbs2',      editable:true,  type:'text' },
+  { label:'Accounting Code',   field:'acct',      editable:true,  type:'text' },
+  { label:'Work Type',         field:'lv1',       editable:true,  type:'text' },
+  { label:'Category',          field:'lv2',       editable:true,  type:'text' },
+  { label:'Specification',     field:'lv3',       editable:true,  type:'text' },
+  { label:'Standard',          field:'lv4',       editable:true,  type:'text' },
+  { label:'SC Category',       field:'scCat',     editable:false },
+  { label:'Area',              field:'area',      editable:false },
+  { label:'Block',             field:'block',     editable:false },
+  { label:'Soil Type',         field:'soil',      editable:false },
+  { label:'Quantity',          field:'qty',       editable:true,  type:'number', postLocked:true, suffix:'unit' },
+  { label:'Unit',              field:'unit',      editable:true,  type:'text',   postLocked:true },
+  { label:'Construction Days', field:'cdays',     editable:false, suffix:'days' },
+  { label:'Daily Output',      field:'dout',      editable:false, suffix:'unit/day' },
+  { label:'Start Date',        field:'startDate', editable:false },
+  { label:'End Date',          field:'endDate',   editable:false },
+  { label:'Memo',              field:'memo',      editable:true,  type:'text' },
 ];
 
 function openDetailsDrawer(rowId) {
   const r = state.rows.find(x => x.id === rowId);
   if (!r) return;
   state._activeRowId = rowId;
-  state._detailsEditMode = false;
-  // Snapshot for revert on Cancel/X/scrim
-  state._drawerSnapshot = JSON.parse(JSON.stringify(r));
   $('details_title').textContent = `Construction Unit Rate – ${r.lv1 || 'Task'}`;
   renderDetailsForm();
   $('curDrawer').classList.add('show');
@@ -1680,89 +1741,95 @@ function openDetailsDrawer(rowId) {
 }
 
 function closeDetailsDrawer() {
-  // If we were editing, revert to snapshot
-  if (state._detailsEditMode && state._drawerSnapshot && state._activeRowId) {
-    const idx = state.rows.findIndex(x => x.id === state._activeRowId);
-    if (idx >= 0) state.rows[idx] = JSON.parse(JSON.stringify(state._drawerSnapshot));
-  }
-  state._detailsEditMode = false;
-  state._drawerSnapshot = null;
+  // Drawer is a window into the row — closing it doesn't revert.
+  // Revert is handled by the table-level Cancel button when the user is in edit mode.
   state._activeRowId = null;
   $('curDrawer').classList.remove('show');
   $('curDrawerScrim').classList.remove('show');
-  // Re-render in case we reverted
-  render();
 }
 
-function toggleDetailsEdit() {
+/* Drawer "Edit" button — enters table-level edit mode (single source of truth) */
+function enterDetailsEdit() {
   if (state.acquired) { toast('Planning is locked', 'error'); return; }
-  if (state._detailsEditMode) {
-    // currently editing → cancel: revert + back to view mode
-    if (state._drawerSnapshot && state._activeRowId) {
-      const idx = state.rows.findIndex(x => x.id === state._activeRowId);
-      if (idx >= 0) state.rows[idx] = JSON.parse(JSON.stringify(state._drawerSnapshot));
-    }
-    state._detailsEditMode = false;
-  } else {
-    state._detailsEditMode = true;
-  }
-  renderDetailsForm();
-  $('details_edit_btn').textContent = state._detailsEditMode ? 'Cancel' : 'Edit';
+  enterEdit();                  // sets state.editMode = true and snapshots state.rowsBackup
+  renderDetailsForm();          // re-render drawer with editable fields
 }
 
-function saveDetails() {
-  if (state.acquired) { toast('Planning is locked', 'error'); return; }
-  const r = state.rows.find(x => x.id === state._activeRowId);
-  if (!r) { closeDetailsDrawer(); return; }
-  if (state._detailsEditMode) {
-    // Read editable inputs back into the row
-    document.querySelectorAll('#details_form .dform-input[data-field]').forEach(inp => {
-      const f = inp.dataset.field;
-      let v = inp.value;
-      if (inp.type === 'number') v = v === '' ? '' : Number(v);
-      r[f] = v;
-    });
-    // Recompute amount if both qty & rate present
-    if (r.qty !== '' && r.qty != null && r.rate !== '' && r.rate != null) {
-      r.amount = +(Number(r.qty) * Number(r.rate)).toFixed(2);
-    }
-    state.dirty = true;
-    state.dirtyPlanning = true;  // Details fields are planning fields
-    state.lastEdited = ts();
-    // Single-run Simulation UX — no simNeedsRefresh flip
+/* Drawer "Cancel" button — reverts via table-level cancel and closes drawer */
+function cancelDetailsEdit() {
+  cancelEdit();                 // reverts state.rows from rowsBackup
+  closeDetailsDrawer();
+}
+
+/* Drawer "Save" button — flushes inputs to state, then commits via saveTable */
+function saveDetailsAndClose() {
+  // Force-blur any focused drawer input so its onchange fires before saveTable runs
+  if (document.activeElement && document.activeElement.matches('#details_form .dform-input')) {
+    document.activeElement.blur();
   }
-  state._detailsEditMode = false;
-  state._drawerSnapshot = null;
-  state._activeRowId = null;
-  $('curDrawer').classList.remove('show');
-  $('curDrawerScrim').classList.remove('show');
-  render();
-  toast('Details saved', 'success');
+  saveTable();                  // commits, clears dirty flags, exits edit mode, toasts
+  closeDetailsDrawer();
 }
 
 function renderDetailsForm() {
   const r = state.rows.find(x => x.id === state._activeRowId);
   if (!r) return;
-  const editing = state._detailsEditMode && !state.acquired;
+
+  // Drawer mirrors the table's edit mode — no separate drawer-only edit state.
+  const tableEditing = state.editMode && !state.acquired;
+
+  const escAttr = s => String(s).replace(/"/g, '&quot;');
+  const fieldSuffix = (f) => {
+    if (!f.suffix || !r.unit) {
+      if (f.suffix === 'days') return ' days';
+      return '';
+    }
+    if (f.suffix === 'unit')      return ' ' + r.unit;
+    if (f.suffix === 'unit/day')  return ' ' + r.unit + '/day';
+    if (f.suffix === 'days')      return ' days';
+    return '';
+  };
 
   let html = DETAIL_FIELDS.map(f => {
-    const val = r[f.field] != null && r[f.field] !== '' ? r[f.field] : '';
-    if (editing && f.editable) {
+    const val = r[f.field];
+    const valStr = (val == null || val === '') ? '' : String(val);
+
+    // Per-field editability — matches the table's column rules
+    const isPostLocked = state.imported && f.postLocked;
+    const isHardLocked = !f.editable || state.acquired || isPostLocked;
+    const editable = tableEditing && !isHardLocked;
+
+    if (editable) {
       return `<div class="dform-row">
         <label>${f.label}</label>
-        <input class="dform-input" data-field="${f.field}" type="${f.type || 'text'}" value="${val}" />
+        <input class="dform-input" data-field="${f.field}" type="${f.type || 'text'}" value="${escAttr(valStr)}" />
       </div>`;
     }
+    const display = valStr !== '' ? (valStr + fieldSuffix(f)) : '—';
+    const lockClass = isHardLocked && valStr !== '' ? ' sim-locked' : '';
     return `<div class="dform-row">
       <label>${f.label}</label>
-      <div class="dform-display">${val !== '' ? val : '—'}</div>
+      <div class="dform-display${lockClass}">${display}</div>
     </div>`;
   }).join('');
 
-  // Estimated Unit Rate (Simulation-derived from CUR / Knowledge — never editable here)
-  const rateText = (r.rate !== '' && r.rate != null) ? (fmt$(r.rate) + '/' + (r.unit || 'm³')) : '—';
-  html += `
-    <div class="dform-row">
+  // Unit Rate — editable pre-import only (postLocked semantics)
+  const rateLockedPostImport = state.imported;
+  const rateEditable = tableEditing && !rateLockedPostImport;
+  const rateUnit = r.unit || 'm³';
+  if (rateEditable) {
+    html += `<div class="dform-row">
+      <div class="dform-label-row">
+        <label>Estimated Unit Rate</label>
+        <select class="dform-method" disabled>
+          <option>Unit Rate Retrieval Method</option>
+        </select>
+      </div>
+      <input class="dform-input" data-field="rate" type="number" step="0.01" value="${escAttr(r.rate==null?'':r.rate)}" />
+    </div>`;
+  } else {
+    const rateText = (r.rate !== '' && r.rate != null) ? ('$' + fmtNum(r.rate) + '/' + rateUnit) : '—';
+    html += `<div class="dform-row">
       <div class="dform-label-row">
         <label>Estimated Unit Rate</label>
         <select class="dform-method" disabled>
@@ -1770,15 +1837,23 @@ function renderDetailsForm() {
         </select>
       </div>
       <div class="dform-display sim-locked">${rateText}</div>
-    </div>
-    <div class="dform-row">
-      <label>Estimated Amount</label>
-      <div class="dform-display sim-locked">${(r.amount !== '' && r.amount != null) ? fmt$(r.amount) : '—'}</div>
-    </div>
-  `;
+    </div>`;
+  }
+
+  // Estimated Amount — always read-only (computed)
+  html += `<div class="dform-row">
+    <label>Estimated Amount</label>
+    <div class="dform-display sim-locked">${(r.amount !== '' && r.amount != null) ? fmt$(r.amount) : '—'}</div>
+  </div>`;
 
   $('details_form').innerHTML = html;
-  $('details_edit_btn').textContent = editing ? 'Cancel' : 'Edit';
+
+  // Footer buttons follow the same view/edit pattern as the main table footer
+  $('details_edit_btn').style.display   = tableEditing ? 'none' : 'inline-flex';
+  $('details_cancel_btn').style.display = tableEditing ? 'inline-flex' : 'none';
+  $('details_save_btn').style.display   = tableEditing ? 'inline-flex' : 'none';
+  $('details_edit_btn').disabled = !!state.acquired;
+  $('details_edit_btn').title = state.acquired ? 'Planning is locked' : 'Switch to Edit mode';
 }
 
 function openImportConfirm() {
@@ -1813,7 +1888,7 @@ function importLatest() {
   state.selectedId = null;
   state.simHasNewer = false;
   state.simNeedsRefresh = false;
-  toast('Simulation Plan imported — Area, Block, SC tasks updated', 'success');
+  toast('Simulation Plan imported — Area, Block, tasks updated', 'success');
   render();
 }
 
@@ -1896,6 +1971,28 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (COST_FIELDS.includes(f)) state.dirtyCost = true;
     const total = state.rows.reduce((s, r) => s + (Number(r.amount)||0), 0);
     $('totalAmt').textContent = fmt$(total || 0);
+    $('btnSave').disabled = false;
+  });
+
+  // Details drawer inputs — same change handling as table inline edits.
+  // Drawer is just a different view of the same row, so we wire the same dirty / amount rules.
+  $('details_form').addEventListener('change', (e) => {
+    const el = e.target;
+    if (!el.matches('.dform-input[data-field]')) return;
+    const r = state.rows.find(x => x.id === state._activeRowId);
+    if (!r) return;
+    const f = el.dataset.field;
+    let v = el.value;
+    if (f === 'qty' || f === 'rate') v = v === '' ? '' : Number(v);
+    r[f] = v;
+    if ((f === 'qty' || f === 'rate') && r.qty !== '' && r.rate !== '') {
+      r.amount = +(Number(r.qty)*Number(r.rate)).toFixed(2);
+    }
+    state.dirty = true;
+    const PLANNING_FIELDS = ['qty','soil','lv1','lv2','lv3','lv4','unit','wbs','wbs2','acct','memo'];
+    const COST_FIELDS = ['rate'];
+    if (PLANNING_FIELDS.includes(f)) state.dirtyPlanning = true;
+    else if (COST_FIELDS.includes(f)) state.dirtyCost = true;
     $('btnSave').disabled = false;
   });
 
