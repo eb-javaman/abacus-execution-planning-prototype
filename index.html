@@ -162,8 +162,21 @@
     text-align:left; padding:10px 10px; border-bottom:1px solid var(--neutral-200);
     border-right:1px solid var(--neutral-200);
     white-space:nowrap; font-size:11px; text-transform:uppercase; letter-spacing:.4px;
+    position:relative; /* anchor for the .col-resizer */
   }
   table.ep thead th:last-child { border-right:none; }
+
+  /* Column resize handle — Excel-style. Hover to highlight, drag to resize. */
+  .col-resizer {
+    position:absolute; top:0; right:-3px; bottom:0;
+    width:6px; cursor:col-resize; z-index:5;
+    background:transparent; transition:background .15s ease;
+  }
+  .col-resizer:hover, .col-resizer.dragging {
+    background:var(--indigo-300);
+  }
+  body.col-resizing { cursor:col-resize !important; user-select:none; }
+  body.col-resizing * { cursor:col-resize !important; }
   table.ep tbody td {
     padding:4px 10px; border-bottom:1px solid var(--neutral-100);
     border-right:1px solid var(--neutral-100);
@@ -1169,6 +1182,64 @@ $('t-close').addEventListener('click', hideToast);
    - is-scrolled-left:  scrollLeft > 0
    - is-scrolled-right: scrollLeft + clientWidth < scrollWidth
    These classes drive the freeze-boundary shadow and are updated on scroll, resize, and initial render. */
+/* Recompute sticky left/right offsets for frozen columns based on current th widths.
+   Called after resize and after every render() (since the tbody is rebuilt with fresh tds). */
+const STICKY_LEFT_COLS  = ['col-lv1','col-lv2','col-lv3','col-lv4'];
+const STICKY_RIGHT_COLS = ['col-actions','col-amount']; // outer → inner
+function updateStickyOffsets() {
+  let leftAcc = 0;
+  STICKY_LEFT_COLS.forEach(cls => {
+    const th = document.querySelector(`table.ep thead .${cls}`);
+    if (!th) return;
+    const w = th.getBoundingClientRect().width;
+    document.querySelectorAll(`table.ep .${cls}`).forEach(el => { el.style.left = leftAcc + 'px'; });
+    leftAcc += w;
+  });
+  let rightAcc = 0;
+  STICKY_RIGHT_COLS.forEach(cls => {
+    const th = document.querySelector(`table.ep thead .${cls}`);
+    if (!th) return;
+    const w = th.getBoundingClientRect().width;
+    document.querySelectorAll(`table.ep .${cls}`).forEach(el => { el.style.right = rightAcc + 'px'; });
+    rightAcc += w;
+  });
+}
+
+/* Inject a resize handle into every thead th and wire mousedown drag.
+   Resizing updates min-/max-/width on the th (column width follows the th in HTML tables),
+   then recalculates sticky offsets so frozen-column edges stay aligned. */
+function initColumnResizers() {
+  document.querySelectorAll('table.ep thead th').forEach(th => {
+    if (th.querySelector('.col-resizer')) return; // already wired
+    const handle = document.createElement('div');
+    handle.className = 'col-resizer';
+    th.appendChild(handle);
+    handle.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      const startX = e.clientX;
+      const startW = th.getBoundingClientRect().width;
+      handle.classList.add('dragging');
+      document.body.classList.add('col-resizing');
+      function onMove(ev) {
+        const newW = Math.max(60, startW + (ev.clientX - startX));
+        th.style.minWidth = newW + 'px';
+        th.style.maxWidth = newW + 'px';
+        th.style.width    = newW + 'px';
+        updateStickyOffsets();
+        if (typeof updateFreezeShadows === 'function') updateFreezeShadows();
+      }
+      function onUp() {
+        handle.classList.remove('dragging');
+        document.body.classList.remove('col-resizing');
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+  });
+}
+
 function updateFreezeShadows() {
   const el = document.querySelector('.table-scroll');
   if (!el) return;
@@ -1196,11 +1267,13 @@ document.addEventListener('DOMContentLoaded', () => {
   ts.addEventListener('scroll', updateFreezeShadows, { passive:true });
   // ResizeObserver catches column-visibility toggles, plan-becomes-visible, window changes
   if (window.ResizeObserver) {
-    const ro = new ResizeObserver(() => updateFreezeShadows());
+    const ro = new ResizeObserver(() => { updateFreezeShadows(); updateStickyOffsets(); });
     ro.observe(ts);
     const tbl = ts.querySelector('table.ep');
     if (tbl) ro.observe(tbl);
   }
+  initColumnResizers();
+  updateStickyOffsets();
   updateFreezeShadows();
 });
 
@@ -1356,7 +1429,10 @@ function render() {
     }
   });
   // Re-evaluate freeze-boundary shadow after layout changes
-  requestAnimationFrame(() => { if (typeof updateFreezeShadows === 'function') updateFreezeShadows(); });
+  requestAnimationFrame(() => {
+    if (typeof updateStickyOffsets === 'function') updateStickyOffsets();
+    if (typeof updateFreezeShadows === 'function') updateFreezeShadows();
+  });
   // Keep the Details drawer in sync with table edit mode if it's currently open
   if (state._activeRowId && $('curDrawer').classList.contains('show') && typeof renderDetailsForm === 'function') {
     renderDetailsForm();
