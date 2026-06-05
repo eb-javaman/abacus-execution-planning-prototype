@@ -1710,24 +1710,22 @@ const CUR_CATALOG = {
    of the row. `editable` and `postLocked` mirror the table's column rules; `suffix`
    appends a unit string in display mode (matches the table cells). */
 const DETAIL_FIELDS = [
-  { label:'WBS Code ①',        field:'wbs',       editable:true,  type:'text' },
-  { label:'WBS Code ②',        field:'wbs2',      editable:true,  type:'text' },
-  { label:'Accounting Code',   field:'acct',      editable:true,  type:'text' },
-  { label:'Work Type',         field:'lv1',       editable:true,  type:'text' },
-  { label:'Category',          field:'lv2',       editable:true,  type:'text' },
-  { label:'Specification',     field:'lv3',       editable:true,  type:'text' },
-  { label:'Standard',          field:'lv4',       editable:true,  type:'text' },
-  { label:'SC Category',       field:'scCat',     editable:false },
-  { label:'Area',              field:'area',      editable:false },
-  { label:'Block',             field:'block',     editable:false },
-  { label:'Soil Type',         field:'soil',      editable:false },
-  { label:'Quantity',          field:'qty',       editable:true,  type:'number', postLocked:true, suffix:'unit' },
-  { label:'Unit',              field:'unit',      editable:true,  type:'text',   postLocked:true },
-  { label:'Construction Days', field:'cdays',     editable:false, suffix:'days' },
-  { label:'Daily Output',      field:'dout',      editable:false, suffix:'unit/day' },
-  { label:'Start Date',        field:'startDate', editable:false },
-  { label:'End Date',          field:'endDate',   editable:false },
-  { label:'Memo',              field:'memo',      editable:true,  type:'text' },
+  { label:'WBS Code',                  field:'wbs',       editable:true,  type:'text' },
+  { label:'Accounting Code',           field:'acct',      editable:true,  type:'text' },
+  { label:'Task Lvl1 (Work Type)',     field:'lv1',       editable:true,  type:'text' },
+  { label:'Task Lvl2 (Category)',      field:'lv2',       editable:true,  type:'text' },
+  { label:'Task Lvl3 (Specification)', field:'lv3',       editable:true,  type:'text' },
+  { label:'Task Lvl4 (Standard)',      field:'lv4',       editable:true,  type:'text' },
+  { label:'SC Category',               field:'scCat',     editable:false },
+  { label:'Area',                      field:'area',      editable:false },
+  { label:'Block',                     field:'block',     editable:false },
+  { label:'Soil Type',                 field:'soil',      editable:false },
+  { label:'Unit',                      field:'unit',      editable:true,  type:'text',   postLocked:true },
+  { label:'Quantity/Volume',           field:'qty',       editable:true,  type:'number', postLocked:true, suffix:'unit' },
+  { label:'Construction Days',         field:'cdays',     editable:false, suffix:'days' },
+  { label:'Daily Output',              field:'dout',      editable:false, suffix:'unit/day' },
+  { label:'Start Date',                field:'startDate', editable:false },
+  { label:'End Date',                  field:'endDate',   editable:false },
 ];
 
 function openDetailsDrawer(rowId) {
@@ -1819,32 +1817,35 @@ function renderDetailsForm() {
   const rateUnit = r.unit || 'm³';
   if (rateEditable) {
     html += `<div class="dform-row">
-      <div class="dform-label-row">
-        <label>Estimated Unit Rate</label>
-        <select class="dform-method" disabled>
-          <option>Unit Rate Retrieval Method</option>
-        </select>
-      </div>
+      <label>Unit Rate</label>
       <input class="dform-input" data-field="rate" type="number" step="0.01" value="${escAttr(r.rate==null?'':r.rate)}" />
     </div>`;
   } else {
     const rateText = (r.rate !== '' && r.rate != null) ? ('$' + fmtNum(r.rate) + '/' + rateUnit) : '—';
     html += `<div class="dform-row">
-      <div class="dform-label-row">
-        <label>Estimated Unit Rate</label>
-        <select class="dform-method" disabled>
-          <option>Unit Rate Retrieval Method</option>
-        </select>
-      </div>
+      <label>Unit Rate</label>
       <div class="dform-display sim-locked">${rateText}</div>
     </div>`;
   }
 
-  // Estimated Amount — always read-only (computed)
+  // Amount — always read-only (computed)
   html += `<div class="dform-row">
-    <label>Estimated Amount</label>
+    <label>Amount</label>
     <div class="dform-display sim-locked">${(r.amount !== '' && r.amount != null) ? fmt$(r.amount) : '—'}</div>
   </div>`;
+
+  // Memo — moved after Unit Rate / Amount per spec; editable in Edit mode
+  if (tableEditing) {
+    html += `<div class="dform-row">
+      <label>Memo</label>
+      <input class="dform-input" data-field="memo" type="text" value="${escAttr(r.memo||'')}" />
+    </div>`;
+  } else {
+    html += `<div class="dform-row">
+      <label>Memo</label>
+      <div class="dform-display">${r.memo || '—'}</div>
+    </div>`;
+  }
 
   $('details_form').innerHTML = html;
 
