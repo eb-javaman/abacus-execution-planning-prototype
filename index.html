@@ -31,12 +31,12 @@
 
   /* ---------- Top header ---------- */
   .topbar {
-    height:44px; background:var(--neutral-900); color:var(--white);
+    height:44px; background:var(--white); color:var(--indigo-500); border-bottom: solid 1px var(--neutral-100)
     display:flex; align-items:center; padding:0 16px; gap:16px;
     font-size:12px;
   }
   .topbar .brand { font-weight:700; letter-spacing:.3px; }
-  .topbar .right { margin-left:auto; display:flex; gap:16px; align-items:center; color:var(--neutral-300); }
+  .topbar .right { margin-left:auto; display:flex; gap:16px; align-items:center; color:var(--neutral-700); }
 
   /* ---------- Page header ---------- */
   .page-header {
@@ -140,7 +140,11 @@
   /* ---------- Empty state ---------- */
   .empty {
     background:var(--white); border:1px dashed var(--neutral-300); border-radius:8px;
-    padding:48px 24px; margin-top:24px; text-align:center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 320px;
   }
   .empty h3 { margin:0 0 6px; font-size:16px; color:var(--neutral-800); }
   .empty p { margin:0 0 16px; color:var(--neutral-600); font-size:13px; }
@@ -676,7 +680,6 @@
   <span style="opacity:.6">Construction Planning &amp; Execution</span>
   <div class="right">
     <span>Site: Tochigi-Highway-Site-A</span>
-    <span>Thessalonia</span>
   </div>
 </div>
 
@@ -686,8 +689,7 @@
     <a href="#">Site List</a>
     <span class="sep">›</span>
     <a href="#">Tochigi-Highway-Site-A</a>
-    <span class="sep">›</span>
-    <span id="planPill" class="plan-pill" title="Open Plan Settings">— No plan selected —</span>
+    <span id="planPill" class="plan-pill" title="Open Plan Settings">Create a Plan</span>
     <div class="header-actions">
       <button id="btnAcquire" class="btn" disabled title="Available after a Simulation Plan is imported">
         Acquire Performance Data
