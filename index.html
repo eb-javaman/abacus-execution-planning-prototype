@@ -134,15 +134,14 @@
   .btn.ghost:hover:not(:disabled) { background:var(--neutral-100); }
   .btn:disabled { opacity:.45; cursor:not-allowed; }
   .btn .ic { width:14px; height:14px; display:inline-block; }
-  .btn-sm { height:auto; padding:8px 12px; font-size:12px; }
-  .btn-xs { height:auto; padding:4px 8px; font-size:12px; }
+  .btn-sm { height:26px; padding:0 8px; font-size:11px; }
 
   /* ---------- Main area ---------- */
   main { padding:12px; }
 
   /* ---------- Empty state ---------- */
   .empty {
-    background:var(--white); border:1px solid var(--neutral-200); border-radius:8px;
+    background:var(--white); border:1px dashed var(--neutral-300); border-radius:8px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -372,7 +371,7 @@
     height:40px; padding:0 16px;
   }
   .btn.btn-link:hover:not(:disabled) { color:var(--indigo-700); background:var(--indigo-50); }
-  .btn.cp-cta { height:auto; padding:0 22px; font-size:14px; }
+  .btn.cp-cta { height:44px; padding:0 22px; font-size:14px; }
   .modal-header {
     padding:16px 20px; border-bottom:1px solid var(--neutral-200);
     font-weight:700; font-size:15px; color:var(--neutral-900);
@@ -649,7 +648,7 @@
      Left-frozen: Task Lv1–Lv4
      Right-frozen: Amount, Actions */
   table.ep .col-lv1, table.ep .col-lv2, table.ep .col-lv3, table.ep .col-lv4,
-  table.ep .col-amount, table.ep . {
+  table.ep .col-amount, table.ep .col-actions {
     position:sticky; z-index:2; background:var(--white);
   }
   table.ep thead .col-lv1, table.ep thead .col-lv2, table.ep thead .col-lv3, table.ep thead .col-lv4,
@@ -853,11 +852,6 @@
         </svg>
         <button id="btnImport" class="btn sim-btn" disabled>Import Latest Simulation Plan</button>
       </div>
-
-      <button id="btnExport" class="btn export-btn" title="Export">
-        <svg class="ic" viewBox="0 0 20 20" fill="none"><path d="M10 13V3M10 3l-4 4M10 3l4 4M4 14v2a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <span>export</span>
-      </button>
 
       <button id="btnDisplay" class="btn ghost-icon" title="Display Settings">
         <svg class="ic" viewBox="0 0 20 20" fill="none"><path d="M10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="1.5"/><path d="M16 10c0 .4-.04.78-.1 1.16l1.86 1.46-1.8 3.12-2.2-.88c-.6.46-1.27.82-2 1.06L11.4 18h-2.8l-.36-2.08a6.5 6.5 0 0 1-2-1.06l-2.2.88-1.8-3.12 1.86-1.46A6.6 6.6 0 0 1 4 10c0-.4.04-.78.1-1.16L2.24 7.38l1.8-3.12 2.2.88c.6-.46 1.27-.82 2-1.06L8.6 2h2.8l.36 2.08a6.5 6.5 0 0 1 2 1.06l2.2-.88 1.8 3.12-1.86 1.46c.06.38.1.76.1 1.16Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
@@ -1445,12 +1439,12 @@ function render() {
   $('btnImport').classList.toggle('has-badge', !state.imported && !!state.simHasNewer && !state.editMode);
   $('btnImport').dataset.badge = (!state.imported && state.simHasNewer) ? 'New Simulation Update Available' : '';
 
-  $('btnExport').disabled = !hasRows;
+  // Export is disabled until tasks exist AND the user has saved them (left Edit mode).
   $('btnExport').disabled = !hasRows || state.editMode;
   $('btnExport').title = !hasRows
-  ? 'Add tasks before exporting'
-  : state.editMode ? 'Save your tasks before exporting'
-  : 'Export';
+    ? 'Add tasks before exporting'
+    : state.editMode ? 'Save your tasks before exporting'
+    : 'Export';
  // Acquire becomes a Primary action once a Simulation Plan is imported. Entering Edit mode
   // disables it again; after the user Saves (leaves Edit mode) it returns to Primary.
   const acquireReady = state.imported && !state.editMode && !state.acquired;
@@ -1552,7 +1546,7 @@ function render() {
       <td class="num col-amount"><strong>${r.amount===''||r.amount==null ? '—' : fmt$(r.amount)}</strong></td>
       <td class="col-memo">${cellInput(r.id,'memo', r.memo, {placeholder:'—'})}</td>
       <td class="col-actions">
-        <button class="btn btn-xs" onclick="event.stopPropagation(); openDetailsDrawer('${r.id}')" title="Details">Details</button>
+        <button class="btn btn-sm" onclick="event.stopPropagation(); openDetailsDrawer('${r.id}')" title="Details">Details</button>
       </td>
     `;
     tbody.appendChild(tr);
