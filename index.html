@@ -1427,13 +1427,20 @@ function render() {
 
   $('btnExport').disabled = !hasRows;
   $('btnExport').title = !hasRows ? 'Add rows before exporting' : 'Export';
-  $('btnAcquire').disabled = !state.imported || state.acquired;
+ // Acquire becomes a Primary action once a Simulation Plan is imported. Entering Edit mode
+  // disables it again; after the user Saves (leaves Edit mode) it returns to Primary.
+  const acquireReady = state.imported && !state.editMode && !state.acquired;
+  $('btnAcquire').disabled = !acquireReady;
+  $('btnAcquire').classList.toggle('primary', acquireReady);
+  $('btnAcquire').classList.toggle('secondary', !acquireReady);
   $('btnAcquire').textContent = state.acquired ? 'Performance Data Acquired' : 'Acquire Performance Data';
   $('btnAcquire').title = state.acquired
     ? 'Planning is locked — Execution Planning is in Actuals workflow'
-    : state.imported
-      ? 'Start performance data acquisition (locks Execution Planning)'
-      : 'Available after a Simulation Plan is imported';
+    : state.editMode
+      ? 'Save or cancel your edits first'
+      : state.imported
+        ? 'Start performance data acquisition (locks Execution Planning)'
+        : 'Available after a Simulation Plan is imported';
 
   // Empty vs table
   $('emptyState').style.display = state.planName ? 'none' : 'flex';
