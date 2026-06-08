@@ -125,9 +125,9 @@
   .btn.primary {
     background:var(--indigo-500); color:var(--white); border-color:var(--indigo-500);
   }
-  .btn.secondary {font-size: 14px; font-weight: normal; background: var(--indigo-500); color: var(--white);
+  .btn.secondary {font-size: 14px; font-weight: normal; border: solid var(--indigo-500) 1px; color: var(--indigo-500);
   }
-  .btn.secondary:hover:not(:disabled) {background: var(--indigo-600);}
+  .btn.secondary:hover:not(:disabled) {background: var(--indigo-50);}
   .btn.primary:hover:not(:disabled) { background:var(--indigo-600); border-color:var(--indigo-600); }
   .btn.danger-ghost { color:var(--red-600); }
   .btn.ghost { background:transparent; border-color:transparent; color:var(--neutral-700); }
@@ -634,7 +634,7 @@
   .table-footer {
     background:var(--neutral-50); border-top:1px solid var(--neutral-200);
     border-radius:0 0 7px 7px;
-    padding:10px 16px; display:flex; justify-content:space-between; align-items:center;
+    padding:8px 16px; display:flex; justify-content:space-between; align-items:center;
     gap:12px;
   }
   .footer-left, .footer-right { display:flex; gap:8px; align-items:center; }
