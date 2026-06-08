@@ -125,6 +125,8 @@
   .btn.primary {
     background:var(--indigo-500); color:var(--white); border-color:var(--indigo-500);
   }
+  .btn.secondary {ont-size: 14px; font-weight: 600; border: solid var(--indigo-500) 1px; color: var(--indigo-500);
+  }
   .btn.primary:hover:not(:disabled) { background:var(--indigo-600); border-color:var(--indigo-600); }
   .btn.danger-ghost { color:var(--red-600); }
   .btn.ghost { background:transparent; border-color:transparent; color:var(--neutral-700); }
@@ -764,7 +766,7 @@
     <a href="#">Tochigi-Highway-Site-A</a>
     <span id="planPill" class="plan-pill" title="Open Plan Settings">Create a Plan</span>
     <div class="header-actions">
-      <button id="btnAcquire" class="btn" disabled title="Available after a Simulation Plan is imported">
+      <button id="btnAcquire" class="btn secondary" disabled title="Available after a Simulation Plan is imported">
         Acquire Performance Data
       </button>
     </div>
@@ -1408,20 +1410,22 @@ function render() {
   $('btnRunSim').classList.toggle('has-badge', !!runSimReady);
   $('btnRunSim').dataset.badge = runSimReady ? 'Simulation update required' : '';
 
-  // Import is enabled only when there's a newer Simulation result pending (state.simHasNewer).
-  // Cost-only saves don't produce a new Simulation result → Import stays disabled.
-  $('btnImport').disabled = !state.planName || state.editMode || !state.simHasNewer;
-  $('btnImport').title = !state.planName
-    ? 'Create a plan first'
+  // Import is a one-time action: once a Simulation Plan has been imported (state.imported),
+  // the button stays disabled permanently. Otherwise it's enabled only when there's a newer
+  // Simulation result pending (state.simHasNewer). Cost-only saves don't produce a new
+  // Simulation result → Import stays disabled.
+  $('btnImport').disabled = state.imported || !state.planName || state.editMode || !state.simHasNewer;
+  $('btnImport').title = state.imported
+    ? 'Simulation Plan already imported'
+    : !state.planName ? 'Create a plan first'
     : state.editMode ? 'Save or cancel your edits first'
     : !state.simHasNewer ? 'No new Simulation result available'
     : 'New Simulation Update Available — pull it into Abacus';
-  $('btnImport').classList.toggle('has-badge', !!state.simHasNewer && !state.editMode);
-  $('btnImport').dataset.badge = state.simHasNewer ? 'New Simulation Update Available' : '';
+  $('btnImport').classList.toggle('has-badge', !state.imported && !!state.simHasNewer && !state.editMode);
+  $('btnImport').dataset.badge = (!state.imported && state.simHasNewer) ? 'New Simulation Update Available' : '';
 
   $('btnExport').disabled = !hasRows;
   $('btnExport').title = !hasRows ? 'Add rows before exporting' : 'Export';
-  $('btnImport').disabled = !state.simulationRun;
   $('btnAcquire').disabled = !state.imported || state.acquired;
   $('btnAcquire').textContent = state.acquired ? 'Performance Data Acquired' : 'Acquire Performance Data';
   $('btnAcquire').title = state.acquired
