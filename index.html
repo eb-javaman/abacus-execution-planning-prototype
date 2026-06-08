@@ -125,9 +125,9 @@
   .btn.primary {
     background:var(--indigo-500); color:var(--white); border-color:var(--indigo-500);
   }
-  .btn.secondary {font-size: 14px; font-weight: normal; border: solid var(--indigo-500) 1px; color: var(--indigo-500);
+  .btn.secondary {font-size: 12px; font-weight: normal; border:1px solid transparent; color:var(--neutral-800);
   }
-  .btn.secondary:hover:not(:disabled) {background: var(--indigo-50);}
+  .btn.secondary:hover:not(:disabled) {background: var(--indigo-600);}
   .btn.primary:hover:not(:disabled) { background:var(--indigo-600); border-color:var(--indigo-600); }
   .btn.danger-ghost { color:var(--red-600); }
   .btn.ghost { background:transparent; border-color:transparent; color:var(--neutral-700); }
@@ -767,7 +767,7 @@
     <a href="#">Tochigi-Highway-Site-A</a>
     <span id="planPill" class="plan-pill" title="Open Plan Settings">Create a Plan</span>
     <div class="header-actions">
-      <button id="btnAcquire" class="btn" disabled title="Available after a Simulation Plan is imported">
+      <button id="btnAcquire" class="btn secondary" disabled title="Available after a Simulation Plan is imported">
         Acquire Performance Data
       </button>
     </div>
