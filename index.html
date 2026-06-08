@@ -134,14 +134,15 @@
   .btn.ghost:hover:not(:disabled) { background:var(--neutral-100); }
   .btn:disabled { opacity:.45; cursor:not-allowed; }
   .btn .ic { width:14px; height:14px; display:inline-block; }
-  .btn-sm { height:26px; padding:0 8px; font-size:11px; }
+  .btn-sm { height:auto; padding:8px 12px; font-size:12px; }
+  .btn-xs { height:auto; padding:4px 8px; font-size:12px; }
 
   /* ---------- Main area ---------- */
   main { padding:12px; }
 
   /* ---------- Empty state ---------- */
   .empty {
-    background:var(--white); border:1px dashed var(--neutral-300); border-radius:8px;
+    background:var(--white); border:1px solid var(--neutral-200); border-radius:8px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -371,7 +372,7 @@
     height:40px; padding:0 16px;
   }
   .btn.btn-link:hover:not(:disabled) { color:var(--indigo-700); background:var(--indigo-50); }
-  .btn.cp-cta { height:44px; padding:0 22px; font-size:14px; }
+  .btn.cp-cta { height:auto; padding:0 22px; font-size:14px; }
   .modal-header {
     padding:16px 20px; border-bottom:1px solid var(--neutral-200);
     font-weight:700; font-size:15px; color:var(--neutral-900);
@@ -648,7 +649,7 @@
      Left-frozen: Task Lv1–Lv4
      Right-frozen: Amount, Actions */
   table.ep .col-lv1, table.ep .col-lv2, table.ep .col-lv3, table.ep .col-lv4,
-  table.ep .col-amount, table.ep .col-actions {
+  table.ep .col-amount, table.ep . {
     position:sticky; z-index:2; background:var(--white);
   }
   table.ep thead .col-lv1, table.ep thead .col-lv2, table.ep thead .col-lv3, table.ep thead .col-lv4,
@@ -1551,7 +1552,7 @@ function render() {
       <td class="num col-amount"><strong>${r.amount===''||r.amount==null ? '—' : fmt$(r.amount)}</strong></td>
       <td class="col-memo">${cellInput(r.id,'memo', r.memo, {placeholder:'—'})}</td>
       <td class="col-actions">
-        <button class="btn btn-sm" onclick="event.stopPropagation(); openDetailsDrawer('${r.id}')" title="Details">Details</button>
+        <button class="btn btn-xs" onclick="event.stopPropagation(); openDetailsDrawer('${r.id}')" title="Details">Details</button>
       </td>
     `;
     tbody.appendChild(tr);
