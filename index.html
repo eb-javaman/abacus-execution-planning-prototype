@@ -89,7 +89,7 @@
   .tab.active {
     color:var(--indigo-600); border-bottom-color:var(--indigo-500); font-weight:600;
   }
-  .tabs-right { display:flex; align-items:center; gap:8px; padding-bottom:6px; }
+  .tabs-right { display:flex; align-items:center; gap:12px; padding-bottom:6px; }
   .search-wrap { position:relative; }
   .search-wrap .search-icon {
     position:absolute; right:10px; top:50%; transform:translateY(-50%);
@@ -799,6 +799,10 @@
       <div class="tab">Actuals (Summary)</div>
     </div>
     <div class="tabs-right">
+      <button id="btnExport" class="btn export-btn" title="Export" disabled>
+        <svg class="ic" viewBox="0 0 20 20" fill="none"><path d="M10 13V3M10 3l-4 4M10 3l4 4M4 14v2a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>export</span>
+      </button>
       <div class="search-wrap">
         <svg class="search-icon" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="5" stroke="currentColor" stroke-width="1.6"/><path d="m13 13 3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
         <input id="search" class="search-input" placeholder="Search" />
@@ -1426,7 +1430,11 @@ function render() {
   $('btnImport').dataset.badge = (!state.imported && state.simHasNewer) ? 'New Simulation Update Available' : '';
 
   $('btnExport').disabled = !hasRows;
-  $('btnExport').title = !hasRows ? 'Add rows before exporting' : 'Export';
+  $('btnExport').disabled = !hasRows || state.editMode;
+  $('btnExport').title = !hasRows
+  ? 'Add tasks before exporting'
+  : state.editMode ? 'Save your tasks before exporting'
+  : 'Export';
  // Acquire becomes a Primary action once a Simulation Plan is imported. Entering Edit mode
   // disables it again; after the user Saves (leaves Edit mode) it returns to Primary.
   const acquireReady = state.imported && !state.editMode && !state.acquired;
