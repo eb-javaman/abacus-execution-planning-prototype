@@ -34,13 +34,13 @@
     height:44px; background:var(--white); color:var(--indigo-500); border-bottom: solid var(--neutral-200) 1px;
     display:flex; align-items:center; flex-direction: row; padding: 12px;
   }
-  .topbar .brand { font-weight:700; letter-spacing:.3px; font-size: 24px; }
+  .topbar .brand { display:none; }
   .topbar .right { margin-left:auto; display:flex; gap:16px; align-items:center; color:var(--neutral-700); }
 
   /* ---------- Page header ---------- */
   .page-header {
     background:var(--white); border-bottom:1px solid var(--neutral-200);
-    padding:14px 24px 12px;
+    padding:12px;
   }
   .breadcrumb { font-size:12px; color:var(--neutral-600); display:flex; align-items:center; gap:6px; }
   .breadcrumb a { color:var(--neutral-600); text-decoration:none; }
@@ -54,7 +54,7 @@
   .breadcrumb .plan-pill:hover { background:var(--indigo-100); }
 
   .page-title-row {
-    display:flex; align-items:flex-end; justify-content:space-between; margin-top:6px;
+    display:flex; align-items:flex-end; justify-content:space-between; margin-top:8px;
   }
   .page-title { font-size:20px; font-weight:700; color:var(--neutral-900); }
   .timestamp { font-size:11px; color:var(--neutral-500); margin-top:2px; }
@@ -134,7 +134,7 @@
   .btn-sm { height:26px; padding:0 8px; font-size:11px; }
 
   /* ---------- Main area ---------- */
-  main { padding:0 12px 80px; }
+  main { padding:12px; }
 
   /* ---------- Empty state ---------- */
   .empty {
@@ -294,6 +294,81 @@
     box-shadow:0 20px 60px rgba(0,0,0,.25); overflow:hidden;
   }
   .modal.lg { width:560px; }
+
+  /* ---------- Create Plan modal (custom layout per spec) ---------- */
+  .modal.create-plan { width:640px; max-width:94vw; }
+  .modal.create-plan .modal-header {
+    flex-direction:row; align-items:flex-start;
+    padding:24px 28px 8px; border-bottom:none;
+  }
+  .modal.create-plan .cp-header-text { flex:1; }
+  .modal.create-plan .cp-title {
+    font-size:22px; font-weight:700; color:var(--neutral-900); line-height:1.25;
+  }
+  .modal.create-plan .cp-subtitle {
+    font-size:14px; color:var(--neutral-700); font-weight:400; margin-top:6px;
+    line-height:1.45;
+  }
+  .modal.create-plan .modal-header .close-x {
+    font-size:22px; padding:2px; color:var(--neutral-800); margin-top:2px;
+  }
+  .modal.create-plan .modal-body { padding:8px 28px 4px; }
+  .modal.create-plan .modal-footer {
+    padding:12px 28px 22px; background:transparent; border-top:none; gap:12px;
+  }
+  .modal.create-plan .cp-field { margin-bottom:22px; }
+  .modal.create-plan .cp-field label {
+    font-size:14px; font-weight:700; color:var(--neutral-900);
+    text-transform:none; letter-spacing:0;
+    margin-bottom:8px; display:flex; align-items:center; gap:8px;
+  }
+
+  .input-clearable { position:relative; }
+  .input-clearable > input {
+    width:100%; height:44px; padding:10px 36px 10px 14px;
+    border:1px solid var(--neutral-300); border-radius:6px;
+    font-size:15px; font-family:inherit;
+    background:var(--white); color:var(--neutral-900); outline:none;
+    box-sizing:border-box;
+  }
+  .input-clearable > input:focus { border-color:var(--indigo-400); box-shadow:0 0 0 3px var(--indigo-50); }
+  .input-clearable > input::placeholder { color:var(--neutral-500); }
+  .input-clearable .input-clear {
+    position:absolute; right:10px; top:50%; transform:translateY(-50%);
+    background:transparent; border:none; cursor:pointer;
+    color:var(--neutral-500); font-size:18px; line-height:1;
+    padding:4px; width:24px; height:24px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:4px;
+  }
+  .input-clearable .input-clear:hover { color:var(--neutral-900); background:var(--neutral-100); }
+
+  .input-with-icon > input { padding-right:64px; }
+  .input-with-icon .input-clear { right:38px; }
+  .input-with-icon .input-icon {
+    position:absolute; right:14px; top:50%; transform:translateY(-50%);
+    width:18px; height:18px; color:var(--neutral-700); pointer-events:none;
+  }
+
+  .date-range-row { display:flex; gap:12px; align-items:center; }
+  .date-range-row .input-clearable { flex:1; }
+  .date-tilde { color:var(--neutral-700); font-size:16px; font-weight:500; }
+
+  .optional-badge {
+    display:inline-block; padding:2px 8px;
+    background:var(--neutral-100); border:1px solid var(--neutral-200);
+    border-radius:4px;
+    font-size:12px; color:var(--neutral-700); font-weight:500;
+    text-transform:none; letter-spacing:0;
+  }
+
+  .btn.btn-link {
+    background:transparent; border:1px solid transparent;
+    color:var(--indigo-500); font-weight:600;
+    height:40px; padding:0 16px;
+  }
+  .btn.btn-link:hover:not(:disabled) { color:var(--indigo-700); background:var(--indigo-50); }
+  .btn.cp-cta { height:44px; padding:0 22px; font-size:14px; }
   .modal-header {
     padding:16px 20px; border-bottom:1px solid var(--neutral-200);
     font-weight:700; font-size:15px; color:var(--neutral-900);
@@ -824,24 +899,49 @@
 
 <!-- ========== MODAL: Create Plan ========== -->
 <div id="createPlanModal" class="scrim">
-  <div class="modal">
+  <div class="modal create-plan">
     <div class="modal-header">
-      Create Plan
+      <div class="cp-header-text">
+        <div class="cp-title">Create a Plan</div>
+        <div class="cp-subtitle">Create a new planning workspace for Simulation and execution planning.</div>
+      </div>
       <button class="close-x" onclick="closeModal('createPlanModal')">×</button>
     </div>
     <div class="modal-body">
-      <p style="margin:0 0 14px; color:var(--neutral-600)">
-        Create a new Execution Planning entry for this site. Detailed inputs (dates, contract, target scope) will be configured next.
-      </p>
-      <div class="field">
+      <div class="field cp-field">
         <label>Plan Name</label>
-        <input id="newPlanName" value="Tochigi-Highway-Plan V1" />
-        <div class="hint">A plan is the unit linked to a Smart Construction Simulation Plan.</div>
+        <div class="input-clearable">
+          <input id="newPlanName" placeholder="Enter the plan name" />
+          <button class="input-clear" type="button" aria-label="Clear" onclick="this.parentElement.querySelector('input').value=''">×</button>
+        </div>
+      </div>
+      <div class="field cp-field">
+        <label>Construction Date</label>
+        <div class="date-range-row">
+          <div class="input-clearable input-with-icon">
+            <input id="planDateStart" type="text" placeholder="00/00/0000" />
+            <button class="input-clear" type="button" aria-label="Clear" onclick="this.parentElement.querySelector('input').value=''">×</button>
+            <svg class="input-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="3" y="4.5" width="14" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 3v3M13 3v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+          <span class="date-tilde">~</span>
+          <div class="input-clearable input-with-icon">
+            <input id="planDateEnd" type="text" placeholder="00/00/0000" />
+            <button class="input-clear" type="button" aria-label="Clear" onclick="this.parentElement.querySelector('input').value=''">×</button>
+            <svg class="input-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="3" y="4.5" width="14" height="13" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 3v3M13 3v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </div>
+        </div>
+      </div>
+      <div class="field cp-field">
+        <label>Description <span class="optional-badge">optional</span></label>
+        <div class="input-clearable">
+          <input id="planDescription" type="text" placeholder="Add notes or planning details" />
+          <button class="input-clear" type="button" aria-label="Clear" onclick="this.parentElement.querySelector('input').value=''">×</button>
+        </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn" onclick="closeModal('createPlanModal')">Cancel</button>
-      <button class="btn primary" onclick="createPlan()">Create Plan</button>
+      <button class="btn btn-link" onclick="closeModal('createPlanModal')">cancel</button>
+      <button class="btn primary cp-cta" onclick="createPlan()">create plan</button>
     </div>
   </div>
 </div>
