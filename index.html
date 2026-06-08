@@ -31,11 +31,10 @@
 
   /* ---------- Top header ---------- */
   .topbar {
-    height:44px; background:var(--white); color:var(--indigo-500); border-bottom: solid 1px var(--neutral-100)
-    display:flex; align-items:center; padding:0 16px; gap:16px;
-    font-size:12px;
+    height:44px; background:var(--white); color:var(--indigo-500); border-bottom: solid var(--neutral-200) 1px;
+    display:flex; align-items:center; flex-direction: row; padding: 12px;
   }
-  .topbar .brand { font-weight:700; letter-spacing:.3px; }
+  .topbar .brand { font-weight:700; letter-spacing:.3px; font-size: 24px; }
   .topbar .right { margin-left:auto; display:flex; gap:16px; align-items:center; color:var(--neutral-700); }
 
   /* ---------- Page header ---------- */
@@ -48,8 +47,8 @@
   .breadcrumb a:hover { color:var(--indigo-500); }
   .breadcrumb .sep { color:var(--neutral-400); }
   .breadcrumb .plan-pill {
-    margin-left:8px; padding:4px 8px; border:1px solid var(--indigo-200);
-    color:var(--indigo-700); border-radius:12px;
+    margin-left:8px; padding:8px; border:1px solid var(--indigo-200);
+    color:var(--indigo-700); border-radius:8px;
     font-weight:600; cursor:pointer;
   }
   .breadcrumb .plan-pill:hover { background:var(--indigo-100); }
@@ -1284,7 +1283,7 @@ document.addEventListener('DOMContentLoaded', () => {
 ============================================================ */
 function render() {
   // Header
-  $('planPill').textContent = state.planName ? state.planName : '— No plan selected —';
+  $('planPill').textContent = state.planName ? state.planName : 'Create a Plan';
   // Update the Last Edited label (the icon SVG sibling is preserved)
   const leText = state.lastEdited ? 'Last Edited: ' + state.lastEdited : 'Last Edited: 00:00 mm/dd/yyyy';
   const leSpan = $('lastEdited').querySelector('span');
@@ -1984,7 +1983,7 @@ function applyPlanSettings() {
 document.addEventListener('DOMContentLoaded', () => {
   $('planPill').addEventListener('click', () => {
     // Refresh plan settings fields
-    $('ps_currentPlan').textContent = state.planName || '— No plan selected —';
+    $('ps_currentPlan').textContent = state.planName || 'Create a Plan';
     $('ps_lastImported').textContent = state.lastImported ? 'Last imported: ' + state.lastImported : 'Never';
     if (!state.planName) {
       openModal('createPlanModal');
