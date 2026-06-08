@@ -1333,7 +1333,7 @@ function render() {
       : 'Available after a Simulation Plan is imported';
 
   // Empty vs table
-  $('emptyState').style.display = state.planName ? 'none' : 'block';
+  $('emptyState').style.display = state.planName ? 'none' : 'flex';
   $('tableWrap').style.display = state.planName ? 'block' : 'none';
 
   // Toggle Simulation-only columns
