@@ -265,21 +265,51 @@
     border-radius:12px; color:var(--neutral-700);
   }
   .chip strong { color:var(--neutral-900); margin-left:4px; }
-  table.sc { width:100%; border-collapse:collapse; background:var(--white); border:1px solid var(--neutral-200); border-radius:6px; overflow:hidden; }
+  /* ---------- Simulation-generated Tasks: grouped-header flat table ---------- */
+  .sc-head { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:10px; }
+  .sc-meta { display:flex; gap:18px; font-size:11px; color:var(--neutral-600); white-space:nowrap; padding-top:2px; }
+  .sc-meta strong { color:var(--neutral-800); margin-left:4px; }
+  .sc-meta .sc-status { color:#15803D; }
+  .sc-legend { display:inline-flex; align-items:center; gap:4px; }
+  .sc-legend.edit { color:var(--indigo-600); }
+  .sc-legend.lock { color:var(--neutral-500); }
+
+  .sc-scroll { overflow-x:auto; border:1px solid var(--neutral-200); border-radius:6px; background:var(--white); }
+  table.sc { width:100%; min-width:1040px; border-collapse:collapse; background:var(--white); }
   table.sc thead th {
-    background:var(--neutral-100); color:var(--neutral-700); font-weight:600;
-    text-align:left; padding:8px 10px; border-bottom:1px solid var(--neutral-200); font-size:11px;
+    color:var(--neutral-700); font-weight:600; text-align:left; align-content:center;
+    padding:8px 10px; border-bottom:1px solid var(--neutral-200); font-size:11px;
+    background:var(--neutral-100); vertical-align:bottom; white-space:nowrap;
   }
-  table.sc tbody td { padding:8px 10px; border-bottom:1px solid var(--neutral-100); font-size:12px; }
+  table.sc thead th .th-sub { font-weight:500; color:var(--neutral-500); }
+  table.sc tbody td { padding:8px 10px; border-bottom:1px solid var(--neutral-100); font-size:12px; white-space:nowrap; }
   table.sc tbody tr:last-child td { border-bottom:none; }
-  table.sc td.num { text-align:right; font-variant-numeric:tabular-nums; }
-  .sc-price-input {
-    width:80px; padding:4px 8px;
-    border:1px solid var(--neutral-300); border-radius:4px;
-    font-size:12px; background:var(--white); outline:none;
-    font-family:inherit; color:var(--neutral-900); font-weight:600;
+  table.sc td.num, table.sc th.num { text-align:right; font-variant-numeric:tabular-nums; }
+
+  /* grouped "Resource Cost Breakdown" header spanning the 6 cost columns */
+  table.sc thead th.grp {
+    text-align:center; color:var(--neutral-700);
+    border-left:1px solid var(--neutral-200); border-right:1px solid var(--neutral-200);
+    letter-spacing:.3px;
   }
-  .sc-price-input:focus { border-color:var(--indigo-400); box-shadow:0 0 0 2px var(--indigo-50); }
+  /* editable price zone (indigo) vs read-only hours zone (grey) */
+  table.sc thead th.price-col { color:var(--neutral-700); text-align:center; }
+  table.sc thead th.hours-col { background:var(--neutral-100); color:var(--neutral-700); text-align:center; }
+  table.sc tbody td.cost-col { text-align:center; font-variant-numeric:tabular-nums; }
+  table.sc tbody td.hours-col { color:var(--neutral-700); }
+  .grp-start { border-left:1px solid var(--neutral-200) !important; }
+  .grp-mid   { border-right:1px dashed var(--neutral-300) !important; }
+  .grp-end   { border-right:1px solid var(--neutral-200) !important; }
+
+  .sc-rate-input {
+    width:84px; padding:5px 8px; border:1px solid var(--indigo-200); border-radius:5px;
+    font-size:12px; background:var(--white); outline:none; font-family:inherit;
+    color:var(--neutral-900); font-weight:600; text-align:right; font-variant-numeric:tabular-nums;
+  }
+  .sc-rate-input:hover { border-color:var(--indigo-400); }
+  .sc-rate-input:focus { border-color:var(--indigo-500); box-shadow:0 0 0 2px var(--indigo-50); }
+  .ro-price { color:var(--neutral-800); font-weight:600; }
+  .ro-hours { color:var(--neutral-700); }
 
   .empty-nested {
     background:var(--white); border:1px dashed var(--neutral-300); padding:16px; border-radius:6px;
@@ -1316,26 +1346,26 @@ const ROWS_POST = [
     scCat:'土工事/盛土', area:'Area A', block:'Block A1', soil:'Sandy Soil', qty:3000, unit:'m³',
     cdays:5, dout:600, startDate:'07/01/2026', endDate:'07/05/2026', rate:1.32, amount:3960, memo:'',
     sc:{ dailyOutput:600, cur:1.32, tasks:[
-      { name:'Receipt of Excavated Soil', start:'8:00', end:'17:00', eq:'Backhoe 0.7m³ × 1', rate:222, total:1109 },
-      { name:'Spreading', start:'8:00', end:'17:00', eq:'Bulldozer D61PX × 1', rate:317, total:1585 },
-      { name:'Compaction', start:'8:00', end:'17:00', eq:'Vibratory Roller 10t × 1', rate:253, total:1902 },
+      { name:'Receipt of Excavated Soil', start:'8:00', end:'17:00', eq:'Backhoe 0.7m³ × 1', std:222, ot:333, we:444, stdH:5, otH:0, weH:0 },
+      { name:'Spreading', start:'8:00', end:'17:00', eq:'Bulldozer D61PX × 1', std:317, ot:476, we:634, stdH:5, otH:0, weH:0 },
+      { name:'Compaction', start:'8:00', end:'17:00', eq:'Vibratory Roller 10t × 1', std:253, ot:380, we:506, stdH:6, otH:1, weH:0 },
     ]}
   },
   { id:'r1b', wbs:'10', wbs2:'202', acct:'A-101', lv1:'Earthwork (Fill)', lv2:'Fill', lv3:'Roadbed Fill', lv4:'Soil',
     scCat:'土工事/盛土', area:'Area A', block:'Block A2', soil:'Gravel Soil', qty:6000, unit:'m³',
     cdays:9, dout:720, startDate:'07/06/2026', endDate:'07/16/2026', rate:0.57, amount:3420, memo:'',
     sc:{ dailyOutput:720, cur:0.57, tasks:[
-      { name:'Receipt of Excavated Soil', start:'8:00', end:'17:00', eq:'Backhoe 0.7m³ × 1', rate:222, total:1850 },
-      { name:'Spreading', start:'8:00', end:'17:00', eq:'Bulldozer D61PX × 1', rate:317, total:2640 },
-      { name:'Compaction', start:'8:00', end:'17:00', eq:'Vibratory Roller 10t × 1', rate:253, total:2107 },
+      { name:'Receipt of Excavated Soil', start:'8:00', end:'17:00', eq:'Backhoe 0.7m³ × 1', std:222, ot:333, we:444, stdH:6, otH:0, weH:2 },
+      { name:'Spreading', start:'8:00', end:'17:00', eq:'Bulldozer D61PX × 1', std:317, ot:476, we:634, stdH:8, otH:0, weH:0 },
+      { name:'Compaction', start:'8:00', end:'17:00', eq:'Vibratory Roller 10t × 1', std:253, ot:380, we:506, stdH:8, otH:0, weH:0 },
     ]}
   },
   { id:'r1c', wbs:'10', wbs2:'301', acct:'A-102', lv1:'Earthwork (Fill)', lv2:'Fill', lv3:'Roadbed Fill', lv4:'Soil',
     scCat:'土工事/盛土', area:'Area B', block:'Block B1', soil:'Clay Soil', qty:800, unit:'m³',
     cdays:2, dout:560, startDate:'07/17/2026', endDate:'07/20/2026', rate:0.57, amount:456, memo:'',
     sc:{ dailyOutput:560, cur:0.57, tasks:[
-      { name:'Receipt of Excavated Soil', start:'8:00', end:'17:00', eq:'Backhoe 0.7m³ × 1', rate:222, total:317 },
-      { name:'Compaction', start:'8:00', end:'17:00', eq:'Vibratory Roller 10t × 1', rate:253, total:362 },
+      { name:'Receipt of Excavated Soil', start:'8:00', end:'17:00', eq:'Backhoe 0.7m³ × 1', std:222, ot:333, we:444, stdH:4, otH:1, weH:0 },
+      { name:'Compaction', start:'8:00', end:'17:00', eq:'Vibratory Roller 10t × 1', std:253, ot:380, we:506, stdH:5, otH:0, weH:0 },
     ]}
   },
 ];
@@ -1708,48 +1738,90 @@ function renderNested(r) {
     </div>`;
   }
   const canEditRate = state.editMode && !state.acquired;
+  const synced = state.lastImported || 'mm.dd.yyyy';
   return `<div class="nested">
-    <div class="title">Simulation-generated Tasks</div>
-    <div class="subtitle">Edit a Resource Price to update that task's Total Amount; the parent Unit Rate recalculates automatically.</div>
-    <table class="sc">
-      <thead><tr>
-        <th>Work Details</th><th>Start</th><th>End</th>
-        <th>Equipment &amp; No. Units</th>
-        <th>Resource Price</th>
-        <th>Total Amount</th>
-      </tr></thead>
-      <tbody>
-        ${r.sc.tasks.map((t, i) => `<tr>
-          <td>${t.name}</td><td>${t.start}</td><td>${t.end}</td>
-          <td>${t.eq}</td>
-          <td>${canEditRate
-            ? `<input class="sc-price-input" type="number" step="0.01" min="0"
-                      data-row-id="${r.id}" data-task-idx="${i}"
-                      value="${t.rate}"
-                      onchange="onScPriceChange(this.dataset.rowId, this.dataset.taskIdx, this.value)" /> <span style="color:var(--neutral-500); font-size:11px">/h</span>`
-            : `${fmt$(t.rate)}/h`}</td>
-          <td><strong>${fmt$(t.total)}</strong></td>
-        </tr>`).join('')}
-      </tbody>
-    </table>
+    <div class="sc-head">
+      <div>
+        <div class="title">Simulation-generated Tasks</div>
+        <div class="subtitle">
+          <span class="sc-legend edit">Prices ($/h) are editable in Abacus</span>
+          &nbsp;·&nbsp;
+          <span class="sc-legend lock">Hours &amp; work details are Simulation-generated</span>
+          &nbsp;·&nbsp; Total Amount = Σ (Price × Hours)
+        </div>
+      </div>
+      <div class="sc-meta">
+        <span>Last synced: <strong>${synced}</strong></span>
+        <span>Simulation Status: <strong class="sc-status">synced</strong></span>
+      </div>
+    </div>
+    <div class="sc-scroll">
+      <table class="sc">
+        <thead>
+          <tr>
+            <th rowspan="2">Work Details</th>
+            <th rowspan="2">Equipment &amp; No. Units</th>
+            <th rowspan="2">Work Hours<br><span class="th-sub">(Start – End)</span></th>
+            <th colspan="6" class="grp">Resource Cost Breakdown</th>
+            <th rowspan="2" class="num">Total Amount</th>
+          </tr>
+          <tr>
+            <th class="price-col grp-start">Standard ($/h)</th>
+            <th class="price-col">Overtime ($/h)</th>
+            <th class="price-col grp-mid">Weekend/<br>Holiday ($/h)</th>
+            <th class="hours-col">Standard (h)</th>
+            <th class="hours-col">Overtime (h)</th>
+            <th class="hours-col grp-end">Weekend/<br>Holiday (h)</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${r.sc.tasks.map((t, i) => `<tr>
+            <td>${t.name}</td>
+            <td>${t.eq}</td>
+            <td>${t.start}–${t.end}</td>
+            <td class="cost-col price-col grp-start">${scPriceCell(r.id, i, 'std', t.std, canEditRate)}</td>
+            <td class="cost-col price-col">${scPriceCell(r.id, i, 'ot', t.ot, canEditRate)}</td>
+            <td class="cost-col price-col grp-mid">${scPriceCell(r.id, i, 'we', t.we, canEditRate)}</td>
+            <td class="cost-col hours-col"><span class="ro-hours">${t.stdH}h</span></td>
+            <td class="cost-col hours-col"><span class="ro-hours">${t.otH}h</span></td>
+            <td class="cost-col hours-col grp-end"><span class="ro-hours">${t.weH}h</span></td>
+            <td class="num"><strong>${fmt$(scTaskTotal(t))}</strong></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
   </div>`;
 }
 
-/* task Resource Price edit handler. Recalc this task's total, then propagate
-   to parent Unit Rate (sum of task totals / parent qty) and Amount. */
-function onScPriceChange(rowId, taskIdx, newRateStr) {
+/* Total = (std × stdH) + (ot × otH) + (we × weH) */
+function scTaskTotal(t) {
+  return +((Number(t.std)||0) * (Number(t.stdH)||0)
+    + (Number(t.ot)||0) * (Number(t.otH)||0)
+    + (Number(t.we)||0) * (Number(t.weH)||0)).toFixed(2);
+}
+
+/* Editable price cell (one of std/ot/we). Read-only $/h text outside edit mode. */
+function scPriceCell(rowId, idx, type, price, editable) {
+  if (!editable) return `<span class="ro-price">${fmt$(price)}/h</span>`;
+  return `<input class="sc-rate-input" type="number" step="1" min="0"
+            data-row-id="${rowId}" data-task-idx="${idx}" data-rate-type="${type}"
+            value="${price}"
+            onchange="onScRateChange(this.dataset.rowId, this.dataset.taskIdx, this.dataset.rateType, this.value)" />`;
+}
+
+/* Resource price edit handler (Std / OT / WE). Updates the chosen tier price,
+   recomputes this task's Total from the 3-rate breakdown, then propagates to the
+   parent Unit Rate (sum of task totals / parent qty) and Amount. */
+function onScRateChange(rowId, taskIdx, rateType, newPriceStr) {
   const r = state.rows.find(x => x.id === rowId);
   if (!r || !r.sc || !r.sc.tasks[Number(taskIdx)]) return;
+  if (!['std', 'ot', 'we'].includes(rateType)) return;
   const task = r.sc.tasks[Number(taskIdx)];
-  const newRate = Number(newRateStr);
-  if (!isFinite(newRate) || newRate < 0) return;
-  // Implicit duration multiplier — preserves the task's relationship between rate and total
-  const oldRate = Number(task.rate) || 1;
-  const multiplier = Number(task.total) / oldRate;
-  task.rate = newRate;
-  task.total = +(newRate * multiplier).toFixed(2);
-  // Propagate to parent Unit Rate proportionally
-  const totalSum = r.sc.tasks.reduce((sum, t) => sum + Number(t.total || 0), 0);
+  const newPrice = Number(newPriceStr);
+  if (!isFinite(newPrice) || newPrice < 0) return;
+  task[rateType] = newPrice;
+  // Propagate to parent Unit Rate from the recomputed task totals
+  const totalSum = r.sc.tasks.reduce((sum, t) => sum + scTaskTotal(t), 0);
   if (r.qty && Number(r.qty) > 0) {
     r.rate = +(totalSum / Number(r.qty)).toFixed(4);
     r.amount = +totalSum.toFixed(2);
