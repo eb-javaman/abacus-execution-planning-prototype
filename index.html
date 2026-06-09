@@ -298,7 +298,7 @@
   table.sc tbody td.cost-col { text-align:center; font-variant-numeric:tabular-nums; }
   table.sc tbody td.hours-col { color:var(--neutral-700); }
   .grp-start { border-left:1px solid var(--neutral-200) !important; }
-  .grp-mid   { border-right:1px dashed var(--neutral-300) !important; }
+  .tier-div  { border-right:1px dashed var(--neutral-300) !important; }
   .grp-end   { border-right:1px solid var(--neutral-200) !important; }
 
   .sc-rate-input {
@@ -473,11 +473,6 @@
   .plan-pick .pp-current {
     font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:.4px;
     color:var(--indigo-600); background:var(--indigo-50); padding:1px 6px; border-radius:10px; margin-left:6px;
-  }
-  .pp-warning {
-    margin-top:4px; padding:10px 12px; background:var(--indigo-50);
-    border:1px solid var(--indigo-100); border-radius:6px;
-    font-size:12px; color:var(--indigo-700); line-height:1.4;
   }
   .close-x {
     background:transparent; border:none; cursor:pointer; color:var(--neutral-500);
@@ -1051,8 +1046,7 @@
     </div>
     <div class="modal-body">
       <p style="margin:0 0 14px; color:var(--neutral-600)">
-        Choose or update the Smart Construction Simulation Plan linked to this Abacus plan.
-        Plan management is primarily owned by Simulation.
+        View the Simulation plan linked to this Abacus plan. To use a different plan, change the linked Simulation plan.
       </p>
       <div class="field">
         <label>Current Plan</label>
@@ -1065,33 +1059,13 @@
       <div class="field">
         <label>Plan Actions</label>
         <div class="plan-actions">
-          <button class="plan-action" onclick="openPlanPicker('import')">
-            <span class="pa-icon">
-              <svg class="ic" viewBox="0 0 20 20" fill="none"><path d="M10 3v9M10 12l-3.5-3.5M10 12l3.5-3.5M4 14v2a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </span>
-            <span class="pa-text">
-              <span class="pa-title">Import Existing Simulation Plan</span>
-              <span class="pa-desc">Import a plan already created in Smart Construction Simulation.</span>
-            </span>
-            <svg class="pa-arrow" viewBox="0 0 20 20" fill="none"><path d="M7 4l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-          <button class="plan-action" onclick="openPlanPicker('change')">
+          <button class="plan-action" onclick="requestChangePlan()">
             <span class="pa-icon">
               <svg class="ic" viewBox="0 0 20 20" fill="none"><path d="M4 7h9M13 7l-3-3M13 7l-3 3M16 13H7M7 13l3-3M7 13l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </span>
             <span class="pa-text">
-              <span class="pa-title">Change Linked Plan</span>
-              <span class="pa-desc">Select a different Simulation plan. This will replace the current planning data.</span>
-            </span>
-            <svg class="pa-arrow" viewBox="0 0 20 20" fill="none"><path d="M7 4l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-          <button class="plan-action" onclick="openModal('createPlanModal'); closeModal('planSettingsModal')">
-            <span class="pa-icon">
-              <svg class="ic" viewBox="0 0 20 20" fill="none"><path d="M10 5v10M5 10h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-            </span>
-            <span class="pa-text">
-              <span class="pa-title">Create New Plan</span>
-              <span class="pa-desc">Create a new shared plan in Abacus and Simulation.</span>
+              <span class="pa-title">Change Simulation Plan</span>
+              <span class="pa-desc">Select a different Simulation plan. This will replace the current Execution Planning data.</span>
             </span>
             <svg class="pa-arrow" viewBox="0 0 20 20" fill="none"><path d="M7 4l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
@@ -1104,7 +1078,26 @@
   </div>
 </div>
 
-<!-- ========== MODAL: Plan Picker (Import Existing / Change Linked) ========== -->
+<!-- ========== MODAL: Unsaved-changes confirm before switching plans ========== -->
+<div id="planSwitchConfirmModal" class="scrim">
+  <div class="modal">
+    <div class="modal-header">
+      Switch Simulation Plan?
+      <button class="close-x" onclick="closeModal('planSwitchConfirmModal'); openModal('planSettingsModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin:0; color:var(--neutral-700)">
+        Switching plans will replace the current Execution Planning data. Unsaved changes will be lost.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('planSwitchConfirmModal'); openModal('planSettingsModal')">Cancel</button>
+      <button class="btn primary" onclick="closeModal('planSwitchConfirmModal'); openPlanPicker()">Continue</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MODAL: Plan Picker (Select Simulation Plan) ========== -->
 <div id="planPickerModal" class="scrim">
   <div class="modal lg">
     <div class="modal-header">
@@ -1112,13 +1105,12 @@
       <button class="close-x" onclick="closeModal('planPickerModal')">×</button>
     </div>
     <div class="modal-body">
-      <p id="pp_desc" style="margin:0 0 14px; color:var(--neutral-600)"></p>
+      <p id="pp_desc" style="margin:0 0 14px; color:var(--neutral-600)">
+        Select a different Simulation plan. This will replace the current Execution Planning data.
+      </p>
       <div class="field">
         <label>Available Simulation Plans</label>
         <div id="pp_list" class="plan-pick-list"></div>
-      </div>
-      <div id="pp_warning" class="pp-warning" style="display:none">
-        Switching will replace the current planning data with the selected plan. This action is intentional and cannot be undone automatically.
       </div>
     </div>
     <div class="modal-footer">
@@ -1767,10 +1759,10 @@ function renderNested(r) {
           </tr>
           <tr>
             <th class="price-col grp-start">Standard ($/h)</th>
+            <th class="hours-col tier-div">Standard (h)</th>
             <th class="price-col">Overtime ($/h)</th>
-            <th class="price-col grp-mid">Weekend/<br>Holiday ($/h)</th>
-            <th class="hours-col">Standard (h)</th>
-            <th class="hours-col">Overtime (h)</th>
+            <th class="hours-col tier-div">Overtime (h)</th>
+            <th class="price-col">Weekend/<br>Holiday ($/h)</th>
             <th class="hours-col grp-end">Weekend/<br>Holiday (h)</th>
           </tr>
         </thead>
@@ -1780,10 +1772,10 @@ function renderNested(r) {
             <td>${t.eq}</td>
             <td>${t.start}–${t.end}</td>
             <td class="cost-col price-col grp-start">${scPriceCell(r.id, i, 'std', t.std, canEditRate)}</td>
+            <td class="cost-col hours-col tier-div"><span class="ro-hours">${t.stdH}h</span></td>
             <td class="cost-col price-col">${scPriceCell(r.id, i, 'ot', t.ot, canEditRate)}</td>
-            <td class="cost-col price-col grp-mid">${scPriceCell(r.id, i, 'we', t.we, canEditRate)}</td>
-            <td class="cost-col hours-col"><span class="ro-hours">${t.stdH}h</span></td>
-            <td class="cost-col hours-col"><span class="ro-hours">${t.otH}h</span></td>
+            <td class="cost-col hours-col tier-div"><span class="ro-hours">${t.otH}h</span></td>
+            <td class="cost-col price-col">${scPriceCell(r.id, i, 'we', t.we, canEditRate)}</td>
             <td class="cost-col hours-col grp-end"><span class="ro-hours">${t.weH}h</span></td>
             <td class="num"><strong>${fmt$(scTaskTotal(t))}</strong></td>
           </tr>`).join('')}
@@ -2267,18 +2259,23 @@ function importLatest() {
   render();
 }
 
-/* ---------- Plan Picker: intentional Import / Change of a Simulation plan ---------- */
+/* ---------- Change Simulation Plan: intentional plan switch ---------- */
 const SIM_PLANS = ['Tochigi-Highway-Plan V1', 'Tochigi-Highway-Plan V2', 'Tochigi-Highway-Plan V3'];
-let _planPicker = { mode: null, selected: null };
+let _planPicker = { selected: null };
 
-function openPlanPicker(mode) {
-  _planPicker = { mode, selected: null };
-  const isChange = mode === 'change';
-  $('pp_title').textContent = isChange ? 'Change Linked Plan' : 'Import Existing Simulation Plan';
-  $('pp_desc').textContent = isChange
-    ? 'Select a different Simulation plan. This will replace the current planning data.'
-    : 'Import a plan already created in Smart Construction Simulation.';
-  $('pp_warning').style.display = isChange ? 'block' : 'none';
+/* Entry point from the Plan Settings action card. If there are unsaved Execution
+   Planning changes, confirm before switching; otherwise open the picker directly. */
+function requestChangePlan() {
+  if (state.dirty) {
+    closeModal('planSettingsModal');
+    openModal('planSwitchConfirmModal');
+  } else {
+    openPlanPicker();
+  }
+}
+
+function openPlanPicker() {
+  _planPicker = { selected: null };
   $('pp_confirm').disabled = true;
   renderPlanPickList();
   closeModal('planSettingsModal');
@@ -2304,9 +2301,9 @@ function selectPlanPick(name) {
 }
 
 function confirmPlanPick() {
-  const { mode, selected } = _planPicker;
+  const { selected } = _planPicker;
   if (!selected) return;
-  // Both paths load the chosen Simulation plan and replace the linked planning data.
+  // Load the chosen Simulation plan and replace the linked Execution Planning data.
   state.planName = selected;
   state.rows = JSON.parse(JSON.stringify(ROWS_POST));
   state.imported = true;
@@ -2320,9 +2317,7 @@ function confirmPlanPick() {
   state.editMode = false;
   state.selectedId = null;
   closeModal('planPickerModal');
-  toast(mode === 'change'
-    ? `Linked plan changed to ${selected} — planning data replaced`
-    : `Imported existing Simulation plan: ${selected}`, 'success');
+  toast(`Linked plan changed to ${selected} — Execution Planning data replaced`, 'success');
   render();
 }
 
