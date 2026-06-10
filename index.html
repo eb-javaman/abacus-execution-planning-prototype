@@ -1754,8 +1754,8 @@ function renderNested(r) {
             <th rowspan="2">Work Details</th>
             <th rowspan="2">Equipment &amp; No. Units</th>
             <th rowspan="2">Work Hours<br><span class="th-sub">(Start – End)</span></th>
+            <th rowspan="2">Resource Unit Price</th>
             <th colspan="6" class="grp">Resource Cost Breakdown</th>
-            <th rowspan="2" class="num">Total Amount</th>
           </tr>
           <tr>
             <th class="price-col grp-start">Standard ($/h)</th>
@@ -1771,13 +1771,20 @@ function renderNested(r) {
             <td>${t.name}</td>
             <td>${t.eq}</td>
             <td>${t.start}–${t.end}</td>
+            <td>
+              <div class="rate-cell">
+                <span class="rate-value">--</span>
+                <button class="knowledge-btn" onclick="event.stopPropagation(); openCurSearchDrawer('${r.id}')" title="Apply Resource Unit Price from Knowledge">
+                  <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M480-160q-132 0-226-37.5T160-290v-380q0-52 94-90t226-38q132 0 226 38t94 90v100q-19-3-37-7t-43-7v-12.5q0-30.43-58.5-55.46Q583-677 480-677t-161.5 25.04Q260-626.93 260-596.5q0 31.5 58.5 56.5T480-515h25q-3 6-3.5 12.5T501-490h-21q-86 0-159-17.5T200-561v97q0 31.5 58.5 56.5T480-382q-2 12-2 24.5t1 24.5h1q-86 0-159-17.5T200-405v95q0 30.43 58.5 55.46Q317-229.5 480-229.5q22 0 41.5-2.5T560-237q9 19 18.5 35t21.5 31q-30 5-58 8t-62 3Zm230 0v-119H591l149-141 150 141H770v119h-60Z"/></svg>
+                </button>
+              </div>
+            </td>
             <td class="cost-col price-col grp-start">${scPriceCell(r.id, i, 'std', t.std, canEditRate)}</td>
             <td class="cost-col hours-col tier-div"><span class="ro-hours">${t.stdH}h</span></td>
             <td class="cost-col price-col">${scPriceCell(r.id, i, 'ot', t.ot, canEditRate)}</td>
             <td class="cost-col hours-col tier-div"><span class="ro-hours">${t.otH}h</span></td>
             <td class="cost-col price-col">${scPriceCell(r.id, i, 'we', t.we, canEditRate)}</td>
             <td class="cost-col hours-col grp-end"><span class="ro-hours">${t.weH}h</span></td>
-            <td class="num"><strong>${fmt$(scTaskTotal(t))}</strong></td>
           </tr>`).join('')}
         </tbody>
       </table>
