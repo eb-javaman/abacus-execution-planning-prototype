@@ -636,6 +636,76 @@
   }
   .dform-input:focus { border-color:var(--indigo-500); box-shadow:0 0 0 3px var(--indigo-50); }
 
+  /* ---------- CUR drawer: sectioned card (linked / full-edit states) ---------- */
+  .dform-pill {
+    display:inline-block; background:var(--indigo-50); color:var(--indigo-700);
+    font-size:11px; font-weight:600; padding:3px 8px; border-radius:6px;
+  }
+  .dform-card {
+    border:1px solid var(--neutral-200); border-radius:10px; padding:16px 16px 18px;
+    display:flex; flex-direction:column; gap:20px;
+  }
+  .dform-sec { display:flex; flex-direction:column; gap:12px; }
+  .dform-sec-title { font-size:15px; font-weight:700; color:var(--neutral-900); }
+  .dform-field { display:flex; flex-direction:column; gap:6px; }
+  .dform-field > label { font-size:13px; color:var(--neutral-700); }
+  .dform-field > label strong { color:var(--neutral-900); }
+  .dform-control { position:relative; }
+  .dform-control > input,
+  .dform-control > select,
+  .dform-control > textarea {
+    width:100%; box-sizing:border-box; padding:11px 36px 11px 12px;
+    border:1px solid var(--neutral-300); border-radius:8px; font-size:14px; font-family:inherit;
+    background:var(--white); color:var(--neutral-900); outline:none;
+  }
+  .dform-control > select { appearance:none; -webkit-appearance:none; cursor:pointer; }
+  .dform-control > textarea { min-height:96px; resize:vertical; padding-right:12px; color:var(--neutral-800); }
+  .dform-control > input:focus,
+  .dform-control > select:focus,
+  .dform-control > textarea:focus { border-color:var(--indigo-500); box-shadow:0 0 0 3px var(--indigo-50); }
+  .dform-clear {
+    position:absolute; right:8px; top:13px; width:22px; height:22px;
+    border:none; background:transparent; color:var(--neutral-400); cursor:pointer;
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+  }
+  .dform-clear:hover { color:var(--neutral-700); background:var(--neutral-100); }
+  .dform-clear svg { width:16px; height:16px; }
+  .dform-chev {
+    position:absolute; right:10px; top:50%; transform:translateY(-50%);
+    pointer-events:none; color:var(--neutral-500); width:16px; height:16px;
+  }
+  .dform-disp {
+    padding:11px 12px; background:var(--neutral-50); border:1px solid var(--neutral-200);
+    border-radius:8px; font-size:14px; color:var(--neutral-800); min-height:44px;
+    box-sizing:border-box; display:flex; align-items:center;
+  }
+  .dform-cond-chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .dform-cond-chip {
+    display:inline-flex; align-items:center; gap:8px; padding:6px 10px;
+    background:var(--neutral-50); border:1px solid var(--neutral-200); border-radius:6px;
+    font-size:13px; color:var(--neutral-700);
+  }
+  .dform-cond-chip button { border:none; background:transparent; cursor:pointer; color:var(--neutral-500); font-size:13px; line-height:1; padding:0; }
+  .dform-res { border:1px solid var(--neutral-200); border-radius:8px; overflow:hidden; }
+  .dform-res table { width:100%; border-collapse:collapse; font-size:13px; }
+  .dform-res th {
+    background:var(--neutral-50); text-align:left; padding:10px; font-weight:700;
+    color:var(--neutral-800); font-size:12px; border-bottom:1px solid var(--neutral-200);
+  }
+  .dform-res td { padding:8px 10px; border-bottom:1px solid var(--neutral-100); color:var(--neutral-800); vertical-align:middle; }
+  .dform-res tr:last-child td { border-bottom:none; }
+  .dform-res .res-del { border:none; background:transparent; color:var(--neutral-400); cursor:pointer; padding:2px; display:flex; }
+  .dform-res .res-del svg { width:16px; height:16px; }
+  .dform-res-price {
+    width:100%; box-sizing:border-box; padding:7px 9px; border:1px solid var(--neutral-300);
+    border-radius:6px; font-size:13px; font-family:inherit; outline:none; color:var(--neutral-900);
+  }
+  .dform-res-price:focus { border-color:var(--indigo-500); box-shadow:0 0 0 2px var(--indigo-50); }
+  .dform-warn {
+    padding:12px 14px; background:#FFF8E6; border:1px solid #F5C26B; border-radius:8px;
+    font-size:13px; color:#7A5B00; line-height:1.7;
+  }
+
   /* ---------- Knowledge button (in Unit Rate cell) ---------- */
   .rate-cell { display:flex; align-items:center; gap:6px; justify-content:space-between; }
   .rate-cell .rate-value { flex:1; min-width:0; }
@@ -650,6 +720,42 @@
   .knowledge-btn:hover:not(:disabled) { background:var(--indigo-100); }
   .knowledge-btn svg { width:16px; height:16px; }
   .knowledge-btn:disabled { opacity:.4; cursor:not-allowed; }
+
+  /* ---------- Resource Unit Price drawer (search & select only) ---------- */
+  .rp-warn {
+    padding:12px 14px; margin-bottom:14px;
+    background:#FFF8E6; border:1px solid #F5C26B; border-radius:8px;
+    font-size:13px; color:#7A5B00; line-height:1.6;
+  }
+  .rp-showing { font-size:14px; color:var(--neutral-800); margin:2px 0 10px; }
+  .rp-list { display:flex; flex-direction:column; }
+  .rp-card { padding:14px 2px; border-bottom:1px solid var(--neutral-100); }
+  .rp-card:last-child { border-bottom:none; }
+  .rp-row { display:flex; align-items:center; gap:10px; }
+  .rp-chip {
+    font-size:12px; padding:3px 10px; background:var(--neutral-50);
+    border:1px solid var(--neutral-300); border-radius:4px; color:var(--neutral-700);
+    white-space:nowrap;
+  }
+  .rp-name { font-weight:700; font-size:14px; color:var(--neutral-900); flex:1; min-width:0; }
+  .rp-price { color:var(--indigo-500); font-weight:700; font-size:15px; white-space:nowrap; }
+  .rp-applied {
+    color:var(--green-700); border:1px solid var(--green-500); background:var(--green-50);
+    padding:4px 12px; border-radius:6px; font-weight:600; font-size:12px;
+  }
+  .rp-meta { font-size:12px; color:var(--neutral-600); margin-top:6px; }
+  .rp-apply-all {
+    display:flex; align-items:center; gap:8px; margin-top:8px;
+    font-size:12px; color:var(--neutral-700); cursor:pointer;
+  }
+  .rp-apply-all input[type=checkbox] { accent-color:var(--indigo-500); }
+  .rp-empty {
+    text-align:center; padding:24px 16px; color:var(--neutral-500); font-size:12px;
+    border:1px dashed var(--neutral-300); border-radius:6px;
+  }
+  /* Resource Unit Price cell inside the Simulation-generated Tasks table */
+  .rp-cell-name { font-weight:700; color:var(--neutral-900); }
+  .rp-cell-sub { font-size:11px; color:var(--neutral-600); margin-top:1px; }
 
   /* ---------- CUR Search drawer ---------- */
   .cur-search-wrap { position:relative; margin-bottom:14px; }
@@ -1187,12 +1293,36 @@
   </div>
 </aside>
 
+<!-- ========== DRAWER: Resource Unit Price (search & select from Knowledge) ========== -->
+<div id="resPriceDrawerScrim" class="drawer-scrim" onclick="closeResourcePriceDrawer()"></div>
+<aside id="resPriceDrawer" class="drawer">
+  <div class="drawer-header">
+    <div>
+      <div class="drawer-title">Select Resource Unit Price</div>
+      <div class="drawer-subtitle">synced from Knowledge Database</div>
+    </div>
+    <button class="close-x" onclick="closeResourcePriceDrawer()">×</button>
+  </div>
+
+  <div class="drawer-body">
+    <div class="cur-search-wrap">
+      <input id="rp_search_input" placeholder="Search" oninput="renderResourcePriceList()" />
+      <svg class="cur-search-icon" viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="5" stroke="currentColor" stroke-width="1.6"/><path d="m13 13 3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </div>
+
+    <div id="rp_warn" class="rp-warn" style="display:none"></div>
+    <div class="rp-showing">Showing matches for: <strong id="rp_showing_label"></strong></div>
+    <div id="rp_list" class="rp-list"></div>
+  </div>
+</aside>
+
 <!-- ========== DRAWER: Details (Construction Unit Rate – Task) ========== -->
 <div id="curDrawerScrim" class="drawer-scrim" onclick="closeDetailsDrawer()"></div>
 <aside id="curDrawer" class="drawer">
   <div class="drawer-header">
     <div>
-      <div class="drawer-title" id="details_title">Construction Unit Rate – Task</div>
+      <div class="drawer-title" id="details_title">Edit Construction Unit Rate</div>
+      <div class="drawer-subtitle" id="details_subtitle"></div>
     </div>
     <button class="close-x" onclick="closeDetailsDrawer()">×</button>
   </div>
@@ -1332,32 +1462,38 @@ const state = {
 
 /* No auto-populated rows — user adds parent tasks manually via Add Parent Task. */
 
-/* Post-import: split by Area + Block (per the spec example) */
+/* Post-import: split by Area + Block (per the spec example).
+   Simulation provides execution information only — Resource Unit Prices are assigned
+   in Abacus afterwards. Every task arrives with resource:null and empty prices, and
+   the parent Unit Rate / Amount stay empty until pricing is completed.
+   otH / weH are retained internally for future cost calculations and explainability
+   but are never shown in Execution Planning (planning uses standard hours only). */
 const ROWS_POST = [
   { id:'r1a', wbs:'10', wbs2:'201', acct:'A-101', lv1:'Earthwork (Fill)', lv2:'Fill', lv3:'Roadbed Fill', lv4:'Soil',
     scCat:'土工事/盛土', area:'Area A', block:'Block A1', soil:'Sandy Soil', qty:3000, unit:'m³',
-    cdays:5, dout:600, startDate:'07/01/2026', endDate:'07/05/2026', rate:1.32, amount:3960, memo:'',
-    sc:{ dailyOutput:600, cur:1.32, tasks:[
-      { name:'Receipt of Excavated Soil', start:'8:00', end:'17:00', eq:'Backhoe 0.7m³ × 1', std:222, ot:333, we:444, stdH:5, otH:0, weH:0 },
-      { name:'Spreading', start:'8:00', end:'17:00', eq:'Bulldozer D61PX × 1', std:317, ot:476, we:634, stdH:5, otH:0, weH:0 },
-      { name:'Compaction', start:'8:00', end:'17:00', eq:'Vibratory Roller 10t × 1', std:253, ot:380, we:506, stdH:6, otH:1, weH:0 },
+    cdays:5, dout:600, startDate:'07/01/2026', endDate:'07/05/2026', rate:'', amount:'', memo:'',
+    sc:{ dailyOutput:600, tasks:[
+      { name:'Receipt of Excavated Soil', start:'8:00', end:'17:00', eq:'Backhoe 0.7m³ × 1', eqName:'Backhoe 0.7m³', resource:null, std:null, ot:null, we:null, stdH:5, otH:0, weH:0 },
+      { name:'Spreading', start:'8:00', end:'17:00', eq:'Bulldozer D61PX × 1', eqName:'Bulldozer D61PX', resource:null, std:null, ot:null, we:null, stdH:5, otH:0, weH:0 },
+      { name:'Compaction', start:'8:00', end:'17:00', eq:'Vibratory Roller 10t × 1', eqName:'Vibratory Roller 10t', resource:null, std:null, ot:null, we:null, stdH:6, otH:1, weH:0 },
     ]}
   },
   { id:'r1b', wbs:'10', wbs2:'202', acct:'A-101', lv1:'Earthwork (Fill)', lv2:'Fill', lv3:'Roadbed Fill', lv4:'Soil',
     scCat:'土工事/盛土', area:'Area A', block:'Block A2', soil:'Gravel Soil', qty:6000, unit:'m³',
-    cdays:9, dout:720, startDate:'07/06/2026', endDate:'07/16/2026', rate:0.57, amount:3420, memo:'',
-    sc:{ dailyOutput:720, cur:0.57, tasks:[
-      { name:'Receipt of Excavated Soil', start:'8:00', end:'17:00', eq:'Backhoe 0.7m³ × 1', std:222, ot:333, we:444, stdH:6, otH:0, weH:2 },
-      { name:'Spreading', start:'8:00', end:'17:00', eq:'Bulldozer D61PX × 1', std:317, ot:476, we:634, stdH:8, otH:0, weH:0 },
-      { name:'Compaction', start:'8:00', end:'17:00', eq:'Vibratory Roller 10t × 1', std:253, ot:380, we:506, stdH:8, otH:0, weH:0 },
+    cdays:9, dout:720, startDate:'07/06/2026', endDate:'07/16/2026', rate:'', amount:'', memo:'',
+    sc:{ dailyOutput:720, tasks:[
+      { name:'Receipt of Excavated Soil', start:'8:00', end:'17:00', eq:'Backhoe 0.7m³ × 1', eqName:'Backhoe 0.7m³', resource:null, std:null, ot:null, we:null, stdH:6, otH:0, weH:2 },
+      { name:'Spreading', start:'8:00', end:'17:00', eq:'Bulldozer D61PX × 1', eqName:'Bulldozer D61PX', resource:null, std:null, ot:null, we:null, stdH:8, otH:0, weH:0 },
+      { name:'Compaction', start:'8:00', end:'17:00', eq:'Vibratory Roller 10t × 1', eqName:'Vibratory Roller 10t', resource:null, std:null, ot:null, we:null, stdH:8, otH:0, weH:0 },
     ]}
   },
   { id:'r1c', wbs:'10', wbs2:'301', acct:'A-102', lv1:'Earthwork (Fill)', lv2:'Fill', lv3:'Roadbed Fill', lv4:'Soil',
     scCat:'土工事/盛土', area:'Area B', block:'Block B1', soil:'Clay Soil', qty:800, unit:'m³',
-    cdays:2, dout:560, startDate:'07/17/2026', endDate:'07/20/2026', rate:0.57, amount:456, memo:'',
-    sc:{ dailyOutput:560, cur:0.57, tasks:[
-      { name:'Receipt of Excavated Soil', start:'8:00', end:'17:00', eq:'Backhoe 0.7m³ × 1', std:222, ot:333, we:444, stdH:4, otH:1, weH:0 },
-      { name:'Compaction', start:'8:00', end:'17:00', eq:'Vibratory Roller 10t × 1', std:253, ot:380, we:506, stdH:5, otH:0, weH:0 },
+    cdays:2, dout:560, startDate:'07/17/2026', endDate:'07/20/2026', rate:'', amount:'', memo:'',
+    sc:{ dailyOutput:560, tasks:[
+      { name:'Receipt of Excavated Soil', start:'8:00', end:'17:00', eq:'Backhoe 0.7m³ × 1', eqName:'Backhoe 0.7m³', resource:null, std:null, ot:null, we:null, stdH:4, otH:1, weH:0 },
+      { name:'Hauling', start:'8:00', end:'17:00', eq:'Dump Truck 10t × 2', eqName:'Dump Truck 10t', resource:null, std:null, ot:null, we:null, stdH:4, otH:0, weH:0 },
+      { name:'Compaction', start:'8:00', end:'17:00', eq:'Vibratory Roller 10t × 1', eqName:'Vibratory Roller 10t', resource:null, std:null, ot:null, we:null, stdH:5, otH:0, weH:0 },
     ]}
   },
 ];
@@ -1656,12 +1792,14 @@ function render() {
       <td class="num">
         <div class="rate-cell">
           <span class="rate-value">${cellInput(r.id,'rate', r.rate, {kind:'num', placeholder:'0.00', postLocked:true, prefix:'$', suffix: r.unit ? '/' + r.unit : ''})}</span>
-          <button class="knowledge-btn" ${state.imported ? 'disabled' : ''} onclick="event.stopPropagation(); if(!this.disabled) openCurSearchDrawer('${r.id}')" title="${state.imported ? 'Unit Rate is Simulation-managed after import — edit Resource Price in tasks to change' : 'Apply Construction Unit Rate from Knowledge'}">
+          <button class="knowledge-btn" ${state.imported ? 'disabled' : ''} onclick="event.stopPropagation(); if(!this.disabled) openCurSearchDrawer('${r.id}')" title="${state.imported ? 'Unit Rate is calculated from Resource Unit Prices after import — assign them in the expanded tasks' : 'Apply Construction Unit Rate from Knowledge'}">
             <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M480-160q-132 0-226-37.5T160-290v-380q0-52 94-90t226-38q132 0 226 38t94 90v100q-19-3-37-7t-43-7v-12.5q0-30.43-58.5-55.46Q583-677 480-677t-161.5 25.04Q260-626.93 260-596.5q0 31.5 58.5 56.5T480-515h25q-3 6-3.5 12.5T501-490h-21q-86 0-159-17.5T200-561v97q0 31.5 58.5 56.5T480-382q-2 12-2 24.5t1 24.5h1q-86 0-159-17.5T200-405v95q0 30.43 58.5 55.46Q317-229.5 480-229.5q22 0 41.5-2.5T560-237q9 19 18.5 35t21.5 31q-30 5-58 8t-62 3Zm230 0v-119H591l149-141 150 141H770v119h-60Z"/></svg>
           </button>
         </div>
       </td>
-      <td class="num col-amount"><strong>${r.amount===''||r.amount==null ? '—' : fmt$(r.amount)}</strong></td>
+      <td class="num col-amount">${state.editMode && !state.acquired
+        ? cellInput(r.id,'amount', r.amount, {kind:'num', placeholder:'0', prefix:'$'})
+        : `<strong>${r.amount===''||r.amount==null ? '—' : fmt$(r.amount)}</strong>`}</td>
       <td class="col-memo">${cellInput(r.id,'memo', r.memo, {placeholder:'—'})}</td>
       <td class="col-actions">
         <button class="btn btn-sm" onclick="event.stopPropagation(); openDetailsDrawer('${r.id}')" title="Details">Details</button>
@@ -1729,17 +1867,19 @@ function renderNested(r) {
       <div class="empty-nested">No Simulation results yet.</div>
     </div>`;
   }
-  const canEditRate = state.editMode && !state.acquired;
   const synced = state.lastImported || 'mm.dd.yyyy';
+  const priceCell = (v) => v == null || v === ''
+    ? '<span class="locked-value">--</span>'
+    : `<span class="ro-price">${fmt$(v)}/h</span>`;
   return `<div class="nested">
     <div class="sc-head">
       <div>
         <div class="title">Simulation-generated Tasks</div>
         <div class="subtitle">
-          <span class="sc-legend edit">Prices ($/h) are editable in Abacus</span>
+          <span class="sc-legend edit">Assign Resource Unit Prices in Abacus</span>
           &nbsp;·&nbsp;
           <span class="sc-legend lock">Hours &amp; work details are Simulation-generated</span>
-          &nbsp;·&nbsp; Total Amount = Σ (Price × Hours)
+          &nbsp;·&nbsp; Total Amount = Standard Price × Standard Hours
         </div>
       </div>
       <div class="sc-meta">
@@ -1755,15 +1895,14 @@ function renderNested(r) {
             <th rowspan="2">Equipment &amp; No. Units</th>
             <th rowspan="2">Work Hours<br><span class="th-sub">(Start – End)</span></th>
             <th rowspan="2">Resource Unit Price</th>
-            <th colspan="6" class="grp">Resource Cost Breakdown</th>
+            <th colspan="4" class="grp">Resource Cost Breakdown</th>
+            <th rowspan="2" class="num">Total Amount</th>
           </tr>
           <tr>
             <th class="price-col grp-start">Standard ($/h)</th>
             <th class="hours-col tier-div">Standard (h)</th>
-            <th class="price-col">Overtime ($/h)</th>
-            <th class="hours-col tier-div">Overtime (h)</th>
-            <th class="price-col">Weekend/<br>Holiday ($/h)</th>
-            <th class="hours-col grp-end">Weekend/<br>Holiday (h)</th>
+            <th class="price-col tier-div">Overtime ($/h)</th>
+            <th class="price-col grp-end">Weekend/<br>Holiday ($/h)</th>
           </tr>
         </thead>
         <tbody>
@@ -1771,20 +1910,12 @@ function renderNested(r) {
             <td>${t.name}</td>
             <td>${t.eq}</td>
             <td>${t.start}–${t.end}</td>
-            <td>
-              <div class="rate-cell">
-                <span class="rate-value">--</span>
-                <button class="knowledge-btn" onclick="event.stopPropagation(); openCurSearchDrawer('${r.id}')" title="Apply Resource Unit Price from Knowledge">
-                  <svg viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"><path d="M480-160q-132 0-226-37.5T160-290v-380q0-52 94-90t226-38q132 0 226 38t94 90v100q-19-3-37-7t-43-7v-12.5q0-30.43-58.5-55.46Q583-677 480-677t-161.5 25.04Q260-626.93 260-596.5q0 31.5 58.5 56.5T480-515h25q-3 6-3.5 12.5T501-490h-21q-86 0-159-17.5T200-561v97q0 31.5 58.5 56.5T480-382q-2 12-2 24.5t1 24.5h1q-86 0-159-17.5T200-405v95q0 30.43 58.5 55.46Q317-229.5 480-229.5q22 0 41.5-2.5T560-237q9 19 18.5 35t21.5 31q-30 5-58 8t-62 3Zm230 0v-119H591l149-141 150 141H770v119h-60Z"/></svg>
-                </button>
-              </div>
-            </td>
-            <td class="cost-col price-col grp-start">${scPriceCell(r.id, i, 'std', t.std, canEditRate)}</td>
+            <td>${resourcePriceCell(r.id, i, t)}</td>
+            <td class="cost-col price-col grp-start">${priceCell(t.std)}</td>
             <td class="cost-col hours-col tier-div"><span class="ro-hours">${t.stdH}h</span></td>
-            <td class="cost-col price-col">${scPriceCell(r.id, i, 'ot', t.ot, canEditRate)}</td>
-            <td class="cost-col hours-col tier-div"><span class="ro-hours">${t.otH}h</span></td>
-            <td class="cost-col price-col">${scPriceCell(r.id, i, 'we', t.we, canEditRate)}</td>
-            <td class="cost-col hours-col grp-end"><span class="ro-hours">${t.weH}h</span></td>
+            <td class="cost-col price-col tier-div">${priceCell(t.ot)}</td>
+            <td class="cost-col price-col grp-end">${priceCell(t.we)}</td>
+            <td class="num">${t.std == null || t.std === '' ? '<span class="locked-value">--</span>' : `<strong>${fmt$(scTaskTotal(t))}</strong>`}</td>
           </tr>`).join('')}
         </tbody>
       </table>
@@ -1792,42 +1923,11 @@ function renderNested(r) {
   </div>`;
 }
 
-/* Total = (std × stdH) + (ot × otH) + (we × weH) */
+/* Planning cost uses standard working hours only — Overtime / Weekend-Holiday hours
+   are retained in the data (otH / weH) for future calculations but are not shown or
+   included in Execution Planning totals. OT / WE prices stay visible as definitions. */
 function scTaskTotal(t) {
-  return +((Number(t.std)||0) * (Number(t.stdH)||0)
-    + (Number(t.ot)||0) * (Number(t.otH)||0)
-    + (Number(t.we)||0) * (Number(t.weH)||0)).toFixed(2);
-}
-
-/* Editable price cell (one of std/ot/we). Read-only $/h text outside edit mode. */
-function scPriceCell(rowId, idx, type, price, editable) {
-  if (!editable) return `<span class="ro-price">${fmt$(price)}/h</span>`;
-  return `<input class="sc-rate-input" type="number" step="1" min="0"
-            data-row-id="${rowId}" data-task-idx="${idx}" data-rate-type="${type}"
-            value="${price}"
-            onchange="onScRateChange(this.dataset.rowId, this.dataset.taskIdx, this.dataset.rateType, this.value)" />`;
-}
-
-/* Resource price edit handler (Std / OT / WE). Updates the chosen tier price,
-   recomputes this task's Total from the 3-rate breakdown, then propagates to the
-   parent Unit Rate (sum of task totals / parent qty) and Amount. */
-function onScRateChange(rowId, taskIdx, rateType, newPriceStr) {
-  const r = state.rows.find(x => x.id === rowId);
-  if (!r || !r.sc || !r.sc.tasks[Number(taskIdx)]) return;
-  if (!['std', 'ot', 'we'].includes(rateType)) return;
-  const task = r.sc.tasks[Number(taskIdx)];
-  const newPrice = Number(newPriceStr);
-  if (!isFinite(newPrice) || newPrice < 0) return;
-  task[rateType] = newPrice;
-  // Propagate to parent Unit Rate from the recomputed task totals
-  const totalSum = r.sc.tasks.reduce((sum, t) => sum + scTaskTotal(t), 0);
-  if (r.qty && Number(r.qty) > 0) {
-    r.rate = +(totalSum / Number(r.qty)).toFixed(4);
-    r.amount = +totalSum.toFixed(2);
-  }
-  state.dirty = true;
-  state.dirtyCost = true;  // Resource Price edits are cost-only
-  render();
+  return +((Number(t.std)||0) * (Number(t.stdH)||0)).toFixed(2);
 }
 
 /* ============================================================
@@ -2076,36 +2176,43 @@ const CUR_CATALOG = {
 
 /* ===== Details drawer (Construction Unit Rate – [task]) ===== */
 
-/* Fields config:
-   - editable=true means the field is editable in Abacus (planning/business)
-   - editable=false means Simulation-generated or computed — never editable here  */
-/* Details drawer fields — one entry per row column so the drawer is a complete view
-   of the row. `editable` and `postLocked` mirror the table's column rules; `suffix`
-   appends a unit string in display mode (matches the table cells). */
+/* Work Type (工種) options for the drawer's General section. */
+const WORK_TYPES = ['Earthwork (Fill)', 'Earthwork (Cut)', 'Structural Work', 'Paving Work', 'Drainage Work', 'Retaining Wall'];
+
+/* Sample Conditions (条件) + Resources for the full-edit (not-yet-linked) view.
+   Prototype display content — a linked CUR hides these per the restricted layout. */
+const SAMPLE_CONDITIONS = ['item01', 'item02', 'item03', 'item04'];
+const SAMPLE_RESOURCES = [
+  { res: 'Bulldozer',         price: '$77/h',    qty: 1 },
+  { res: 'Dump Truck',        price: '$57.98/h', qty: 2 },
+  { res: 'Operator (Skilled)', price: '$32.21/h', qty: 1 },
+];
+
+/* Fields shown in the Details drawer — mirrors the table's column editability rules:
+   editable:false = always Simulation-managed; postLocked = read-only once imported. */
 const DETAIL_FIELDS = [
-  { label:'WBS Code',                  field:'wbs',       editable:true,  type:'text' },
-  { label:'Accounting Code',           field:'acct',      editable:true,  type:'text' },
-  { label:'Task Lvl1 (Work Type)',     field:'lv1',       editable:true,  type:'text' },
-  { label:'Task Lvl2 (Category)',      field:'lv2',       editable:true,  type:'text' },
-  { label:'Task Lvl3 (Specification)', field:'lv3',       editable:true,  type:'text' },
-  { label:'Task Lvl4 (Standard)',      field:'lv4',       editable:true,  type:'text' },
-  { label:'SC Category',               field:'scCat',     editable:false },
-  { label:'Area',                      field:'area',      editable:false },
-  { label:'Block',                     field:'block',     editable:false },
-  { label:'Soil Type',                 field:'soil',      editable:false },
-  { label:'Unit',                      field:'unit',      editable:true,  type:'text',   postLocked:true },
-  { label:'Quantity/Volume',           field:'qty',       editable:true,  type:'number', postLocked:true, suffix:'unit' },
-  { label:'Construction Days',         field:'cdays',     editable:false, suffix:'days' },
-  { label:'Daily Output',              field:'dout',      editable:false, suffix:'unit/day' },
-  { label:'Start Date',                field:'startDate', editable:false },
-  { label:'End Date',                  field:'endDate',   editable:false },
+  { field:'wbs',       label:'WBS Code',          editable:true },
+  { field:'acct',      label:'Accounting Code',   editable:true },
+  { field:'lv1',       label:'Task (Lv1)',        editable:true },
+  { field:'lv2',       label:'Task (Lv2)',        editable:true },
+  { field:'lv3',       label:'Task (Lv3)',        editable:true },
+  { field:'lv4',       label:'Task (Lv4)',        editable:true },
+  { field:'scCat',     label:'SC Category',       editable:false },
+  { field:'area',      label:'Area',              editable:false },
+  { field:'block',     label:'Block',             editable:false },
+  { field:'soil',      label:'Soil Type',         editable:false },
+  { field:'qty',       label:'Quantity / Volume', editable:true, postLocked:true, type:'number', suffix:'unit' },
+  { field:'unit',      label:'Unit',              editable:true, postLocked:true },
+  { field:'cdays',     label:'Construction Days', editable:false, suffix:'days' },
+  { field:'dout',      label:'Daily Output',      editable:false, suffix:'unit/day' },
+  { field:'startDate', label:'Start Date',        editable:false },
+  { field:'endDate',   label:'End Date',          editable:false },
 ];
 
 function openDetailsDrawer(rowId) {
   const r = state.rows.find(x => x.id === rowId);
   if (!r) return;
   state._activeRowId = rowId;
-  $('details_title').textContent = `Construction Unit Rate – ${r.lv1 || 'Task'}`;
   renderDetailsForm();
   $('curDrawer').classList.add('show');
   $('curDrawerScrim').classList.add('show');
@@ -2201,11 +2308,18 @@ function renderDetailsForm() {
     </div>`;
   }
 
-  // Amount — always read-only (computed)
-  html += `<div class="dform-row">
-    <label>Amount</label>
-    <div class="dform-display sim-locked">${(r.amount !== '' && r.amount != null) ? fmt$(r.amount) : '—'}</div>
-  </div>`;
+  // Amount — auto-calculated from pricing, but stays manually editable in Edit mode
+  if (tableEditing) {
+    html += `<div class="dform-row">
+      <label>Amount</label>
+      <input class="dform-input" data-field="amount" type="number" step="0.01" value="${escAttr(r.amount==null?'':r.amount)}" />
+    </div>`;
+  } else {
+    html += `<div class="dform-row">
+      <label>Amount</label>
+      <div class="dform-display sim-locked">${(r.amount !== '' && r.amount != null) ? fmt$(r.amount) : '—'}</div>
+    </div>`;
+  }
 
   // Memo — moved after Unit Rate / Amount per spec; editable in Edit mode
   if (tableEditing) {
@@ -2258,11 +2372,18 @@ function importLatest() {
   state.lastImported = ts();
   state.lastEdited = state.lastImported;
   state.expanded = new Set(['r1a']);
-  state.dirty = false;
   state.selectedId = null;
   state.simHasNewer = false;
   state.simNeedsRefresh = false;
-  toast('Simulation Plan imported — Area, Block, tasks updated', 'success');
+  // Import opens directly in Edit Mode — Unit Rate cannot be determined until
+  // Resource Unit Prices are assigned, so the user continues straight into pricing.
+  state.rowsBackup = JSON.parse(JSON.stringify(state.rows));
+  state.editMode = true;
+  state.dirty = false;
+  state.dirtyPlanning = false;
+  state.dirtyCost = false;
+  toast('Simulation plan successfully imported!', 'success',
+    { desc: 'Assign Resource Unit Prices to calculate Unit Rate and Amount, then Save.' });
   render();
 }
 
@@ -2320,11 +2441,16 @@ function confirmPlanPick() {
   state.lastImported = ts();
   state.lastEdited = state.lastImported;
   state.expanded = new Set(['r1a']);
-  state.dirty = false;
-  state.editMode = false;
   state.selectedId = null;
+  // Plan switch is effectively an import — open in Edit Mode for pricing (same as importLatest)
+  state.rowsBackup = JSON.parse(JSON.stringify(state.rows));
+  state.editMode = true;
+  state.dirty = false;
+  state.dirtyPlanning = false;
+  state.dirtyCost = false;
   closeModal('planPickerModal');
-  toast(`Linked plan changed to ${selected} — Execution Planning data replaced`, 'success');
+  toast(`Linked plan changed to ${selected} — Execution Planning data replaced`, 'success',
+    { desc: 'Assign Resource Unit Prices to calculate Unit Rate and Amount, then Save.' });
   render();
 }
 
@@ -2384,18 +2510,24 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!r) return;
     const f = el.dataset.field;
     let v = el.value;
-    if (f === 'qty' || f === 'rate') v = v === '' ? '' : Number(v);
+    if (f === 'qty' || f === 'rate' || f === 'amount') v = v === '' ? '' : Number(v);
     r[f] = v;
     if ((f === 'qty' || f === 'rate') && r.qty !== '' && r.rate !== '') {
       r.amount = +(Number(r.qty)*Number(r.rate)).toFixed(2);
-      const amtCell = document.querySelector(`tr[data-row-id="${r.id}"] td:nth-last-child(3) strong`);
-      if (amtCell) amtCell.textContent = fmt$(r.amount);
+      // Amount renders as an input in edit mode, as <strong> otherwise — sync whichever exists
+      const tr = document.querySelector(`tr[data-row-id="${r.id}"]`);
+      const amtInput = tr && tr.querySelector('.cell-input[data-field="amount"]');
+      if (amtInput) amtInput.value = r.amount;
+      else {
+        const amtCell = tr && tr.querySelector('td.col-amount strong');
+        if (amtCell) amtCell.textContent = fmt$(r.amount);
+      }
     }
     state.dirty = true;
     // Classify the change for the dual-track dirty model.
     // Planning fields (anything that would affect Simulation):
     const PLANNING_FIELDS = ['qty','soil','lv1','lv2','lv3','lv4','unit','wbs','wbs2','acct'];
-    const COST_FIELDS = ['rate']; // rate is post-locked, but kept here for completeness
+    const COST_FIELDS = ['rate','amount']; // Abacus cost layer — never sent back to Simulation
     if (PLANNING_FIELDS.includes(f)) state.dirtyPlanning = true;
     else if (COST_FIELDS.includes(f)) state.dirtyCost = true;
     const total = state.rows.reduce((s, r) => s + (Number(r.amount)||0), 0);
@@ -2412,14 +2544,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!r) return;
     const f = el.dataset.field;
     let v = el.value;
-    if (f === 'qty' || f === 'rate') v = v === '' ? '' : Number(v);
+    if (f === 'qty' || f === 'rate' || f === 'amount') v = v === '' ? '' : Number(v);
     r[f] = v;
     if ((f === 'qty' || f === 'rate') && r.qty !== '' && r.rate !== '') {
       r.amount = +(Number(r.qty)*Number(r.rate)).toFixed(2);
     }
     state.dirty = true;
     const PLANNING_FIELDS = ['qty','soil','lv1','lv2','lv3','lv4','unit','wbs','wbs2','acct','memo'];
-    const COST_FIELDS = ['rate'];
+    const COST_FIELDS = ['rate','amount'];
     if (PLANNING_FIELDS.includes(f)) state.dirtyPlanning = true;
     else if (COST_FIELDS.includes(f)) state.dirtyCost = true;
     $('btnSave').disabled = false;
@@ -2433,6 +2565,8 @@ document.addEventListener('DOMContentLoaded', () => {
   render();
 });
 </script>
+<!-- Resource Unit Price selection (Knowledge-synced catalog + drawer) -->
+<script src="resource-pricing.js"></script>
 
 </body>
 </html>
