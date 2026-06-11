@@ -284,7 +284,7 @@
   table.sc thead th .th-sub { font-weight:500; color:var(--neutral-500); }
   table.sc tbody td { padding:8px 10px; border-bottom:1px solid var(--neutral-100); font-size:12px; white-space:nowrap; }
   table.sc tbody tr:last-child td { border-bottom:none; }
-  table.sc td.num, table.sc th.num { text-align:right; font-variant-numeric:tabular-nums; }
+  table.sc td.num, table.sc th.num { text-align:left; font-variant-numeric:tabular-nums; }
 
   /* grouped "Resource Cost Breakdown" header spanning the 6 cost columns */
   table.sc thead th.grp {
@@ -294,8 +294,8 @@
   }
   /* editable price zone (indigo) vs read-only hours zone (grey) */
   table.sc thead th.price-col { color:var(--neutral-700); text-align:center; }
-  table.sc thead th.hours-col { background:var(--neutral-100); color:var(--neutral-700); text-align:center; }
-  table.sc tbody td.cost-col { text-align:center; font-variant-numeric:tabular-nums; }
+  table.sc thead th.hours-col { background:var(--neutral-100); color:var(--neutral-700); text-align:left; }
+  table.sc tbody td.cost-col { text-align:left; font-variant-numeric:tabular-nums; }
   table.sc tbody td.hours-col { color:var(--neutral-700); }
   .grp-start { border-left:1px solid var(--neutral-200) !important; }
   .tier-div  { border-right:1px dashed var(--neutral-300) !important; }
