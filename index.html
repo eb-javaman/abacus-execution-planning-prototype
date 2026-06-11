@@ -1868,15 +1868,24 @@ function renderNested(r) {
     </div>`;
   }
   const synced = state.lastImported || 'mm.dd.yyyy';
-  const priceCell = (v) => v == null || v === ''
-    ? '<span class="locked-value">--</span>'
-    : `<span class="ro-price">${fmt$(v)}/h</span>`;
+  const canEditPrice = state.editMode && !state.acquired;
+  const priceCell = (i, type, v) => {
+    if (canEditPrice) {
+      return `<input class="sc-rate-input" type="number" step="0.01" min="0"
+        data-row-id="${r.id}" data-task-idx="${i}" data-rate-type="${type}"
+        value="${v == null || v === '' ? '' : v}" placeholder="--"
+        onchange="onScRateChange(this.dataset.rowId, this.dataset.taskIdx, this.dataset.rateType, this.value)" />`;
+    }
+    return v == null || v === ''
+      ? '<span class="locked-value">--</span>'
+      : `<span class="ro-price">${fmt$(v)}/h</span>`;
+  };
   return `<div class="nested">
     <div class="sc-head">
       <div>
         <div class="title">Simulation-generated Tasks</div>
         <div class="subtitle">
-          <span class="sc-legend edit">Assign Resource Unit Prices in Abacus</span>
+          <span class="sc-legend edit">Assign Resource Unit Prices in Abacus — prices ($/h) stay editable</span>
           &nbsp;·&nbsp;
           <span class="sc-legend lock">Hours &amp; work details are Simulation-generated</span>
           &nbsp;·&nbsp; Total Amount = Standard Price × Standard Hours
@@ -1911,10 +1920,10 @@ function renderNested(r) {
             <td>${t.eq}</td>
             <td>${t.start}–${t.end}</td>
             <td>${resourcePriceCell(r.id, i, t)}</td>
-            <td class="cost-col price-col grp-start">${priceCell(t.std)}</td>
+            <td class="cost-col price-col grp-start">${priceCell(i, 'std', t.std)}</td>
             <td class="cost-col hours-col tier-div"><span class="ro-hours">${t.stdH}h</span></td>
-            <td class="cost-col price-col tier-div">${priceCell(t.ot)}</td>
-            <td class="cost-col price-col grp-end">${priceCell(t.we)}</td>
+            <td class="cost-col price-col tier-div">${priceCell(i, 'ot', t.ot)}</td>
+            <td class="cost-col price-col grp-end">${priceCell(i, 'we', t.we)}</td>
             <td class="num">${t.std == null || t.std === '' ? '<span class="locked-value">--</span>' : `<strong>${fmt$(scTaskTotal(t))}</strong>`}</td>
           </tr>`).join('')}
         </tbody>
@@ -1928,6 +1937,27 @@ function renderNested(r) {
    included in Execution Planning totals. OT / WE prices stay visible as definitions. */
 function scTaskTotal(t) {
   return +((Number(t.std)||0) * (Number(t.stdH)||0)).toFixed(2);
+}
+
+/* Manual price edit (Std / OT / WE) — prices populate from the selected Resource
+   Unit Price but remain editable. Std edits flow into the parent Unit Rate / Amount
+   (standard-hours model); OT / WE edits only update the stored pricing definitions. */
+function onScRateChange(rowId, taskIdx, rateType, newPriceStr) {
+  const r = state.rows.find(x => x.id === rowId);
+  if (!r || !r.sc || !r.sc.tasks[Number(taskIdx)]) return;
+  if (!['std', 'ot', 'we'].includes(rateType)) return;
+  const task = r.sc.tasks[Number(taskIdx)];
+  if (newPriceStr === '') {
+    task[rateType] = null;
+  } else {
+    const newPrice = Number(newPriceStr);
+    if (!isFinite(newPrice) || newPrice < 0) return;
+    task[rateType] = newPrice;
+  }
+  recomputeRowCost(r);
+  state.dirty = true;
+  state.dirtyCost = true;  // price edits are cost-only — never re-trigger Simulation
+  render();
 }
 
 /* ============================================================
